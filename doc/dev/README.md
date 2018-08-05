@@ -2,6 +2,6 @@
 
 - 下载`git clone github地址`
 - 执行`npm install`
-- 编辑`bin`目录的源码
+- 编辑`src`目录的源码
 - 执行`npm run example`启动实例
 - ...

@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "release": "webpack"
+    "release": "webpack",
+    "example": "node server"
   },
   "repository": {
     "type": "git",
@@ -22,7 +23,8 @@
   "homepage": "https://github.com/kaiyu5609/zr#readme",
   "dependencies": {},
   "devDependencies": {
-    "webpack": "^3.10.0",
-    "babel-loader": "^7.1.5"
+    "babel-loader": "^7.1.5",
+    "express": "^4.16.3",
+    "webpack": "^3.10.0"
   }
 }
