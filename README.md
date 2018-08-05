@@ -12,7 +12,7 @@
 
 ## 安装下载
 
-- 使用`npm`下载：`npm install zr
+- 使用`npm`下载：`npm install zr`
 - 直接下载：`(git releases 地址)`
 - 使用`CDN`：`(npm CDN 地址)`
 

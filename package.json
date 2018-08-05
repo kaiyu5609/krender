@@ -20,7 +20,9 @@
     "url": "https://github.com/kaiyu5609/zr/issues"
   },
   "homepage": "https://github.com/kaiyu5609/zr#readme",
-  "dependencies": {
-    "webpack": "^3.10.0"
+  "dependencies": {},
+  "devDependencies": {
+    "webpack": "^3.10.0",
+    "babel-loader": "^7.1.5"
   }
 }

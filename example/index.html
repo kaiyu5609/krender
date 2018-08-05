@@ -5,7 +5,8 @@
 	<title>zr</title>
 	<style media="screen">
 		.wrapper {
-			height:180px;
+			height: 200px;
+			background: #efefef;
 		}
 	</style>
 </head>
@@ -26,9 +27,9 @@
 		var circle = {
 			shape: 'circle',
 			style: {
-				x: 50,
-				y: 50,
-				r: 20,
+				x: 150,
+				y: 100,
+				r: 50,
 				color: 'lightblue',
 				text: 'Wonderful!'
 			}
@@ -36,6 +37,14 @@
 		
 		z.addShape(circle);
 		z.render();
+
+		z.handler.on('resize', function(ev) {
+			console.log(ev)
+		});
+
+		z.handler.on('click', function(ev) {
+			console.log(ev)
+		});
 
 	</script>
 </body>
