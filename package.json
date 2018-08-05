@@ -1,0 +1,26 @@
+{
+  "name": "zr",
+  "version": "0.0.1",
+  "description": "a lightweight canvas library",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "release": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kaiyu5609/zr.git"
+  },
+  "keywords": [
+    "zr"
+  ],
+  "author": "kaiyu5609",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kaiyu5609/zr/issues"
+  },
+  "homepage": "https://github.com/kaiyu5609/zr#readme",
+  "dependencies": {
+    "webpack": "^3.10.0"
+  }
+}
