@@ -1,9 +1,9 @@
-# zr
+# krender
 
 
 ## 简介
 
-`zr` A lightweight canvas library
+`krender` A lightweight canvas library
 - 官网：`--`
 - 文档：`--`
 - 源码：`--`
@@ -12,7 +12,7 @@
 
 ## 安装下载
 
-- 使用`npm`下载：`npm install zr`
+- 使用`npm`下载：`npm install krender`
 - 直接下载：`(git releases 地址)`
 - 使用`CDN`：`(npm CDN 地址)`
 
@@ -24,7 +24,7 @@
 <html>
 <head>
 	<meta charset="UTF-8">
-	<title>zr</title>
+	<title>krender</title>
 	<style type="text/css">
 		.wrapper {
 			height: 200px;
@@ -33,13 +33,13 @@
 	</style>
 </head>
 <body>
-    <div id="main" class="wrapper"></div>
+	<div id="main" class="wrapper"></div>
 
-	<script type="text/javascript" src="../release/zr.js"></script>
-    <script type="text/javascript">
+	<script type="text/javascript" src="../release/krender.js"></script>
+	<script type="text/javascript">
 
 		var container = document.querySelector('#main');
-		var z = zr.init(container);
+		var kr = krender.init(container);
 
 		var circle = {
 			shape: 'circle',
@@ -52,8 +52,8 @@
 			}
 		};
 		
-		z.addShape(circle);
-		z.render();
+		kr.addShape(circle);
+		kr.render();
 
 	</script>
 </body>
@@ -65,7 +65,7 @@
 
 ## 本地运行demo
 - 确定本机安装了`nodejs`，可使用`node -v`验证
-- 下载源码，解压，或者`git clone https://github.com/kaiyu5609/zr.git`
+- 下载源码，解压，或者`git clone https://github.com/kaiyu5609/krender.git`
 - 进入源码目录，找到`server.js`命令行中运行`node server.js`；或者使用`npm run example`
 - 打开浏览器访问 `http://localhost:3200/example/index.html`
 

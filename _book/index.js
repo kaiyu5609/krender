@@ -1,6 +1,3 @@
-import zrender from './src/zrender';
-import Storage from './src/Storage';
+import krender from './src/krender';
 
-zrender.Storage = Storage;
-
-module.exports = zrender;
+module.exports = krender;

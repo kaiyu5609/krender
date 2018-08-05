@@ -4,9 +4,9 @@
 	else if(typeof define === 'function' && define.amd)
 		define([], factory);
 	else if(typeof exports === 'object')
-		exports["zr"] = factory();
+		exports["krender"] = factory();
 	else
-		root["zr"] = factory();
+		root["krender"] = factory();
 })(typeof self !== 'undefined' ? self : this, function() {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -87,13 +87,13 @@ module.exports = __webpack_require__(1);
 "use strict";
 
 
-var _zr = __webpack_require__(2);
+var _krender = __webpack_require__(2);
 
-var _zr2 = _interopRequireDefault(_zr);
+var _krender2 = _interopRequireDefault(_krender);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-module.exports = _zr2.default;
+module.exports = _krender2.default;
 
 /***/ }),
 /* 2 */
@@ -134,32 +134,32 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var instances = {};
 
-var zr = {};
+var krender = {};
 
-zr.version = '0.0.1';
+krender.version = '0.0.1';
 
 /**
- * zr初始化
- * 不让外部直接new Zr实例，提供全局可控同时减少全局污染和降低命名冲突的风险
+ * krender初始化
+ * 不让外部直接new KRender实例，提供全局可控同时减少全局污染和降低命名冲突的风险
  * @param {HTMLElement} dom dom对象
  * @param {Object} opts 
- * @return {Zr} Zr实例
+ * @return {KRender} KRender实例
  */
-zr.init = function (dom, opts) {
-    var zi = new Zr((0, _guid2.default)(), dom, opts);
-    instances[zi.id] = zi;
-    return zi;
+krender.init = function (dom, opts) {
+    var kr = new KRender((0, _guid2.default)(), dom, opts);
+    instances[kr.id] = kr;
+    return kr;
 };
 
 /**
- * zr实例销毁
- * 可以通过zr.dispose(zi)销毁指定Zr实例
- * 当然也可以直接zi.dispose()自己销毁
- * @param {Zr} zi Zr对象，不传则销毁全部
+ * kr实例销毁
+ * 可以通过zr.dispose(kr)销毁指定KRender实例
+ * 当然也可以直接kr.dispose()自己销毁
+ * @param {KRender} kr KRender对象，不传则销毁全部
  */
-zr.dispose = function (zi) {
-    if (zi) {
-        zi.dispose();
+krender.dispose = function (kr) {
+    if (kr) {
+        kr.dispose();
     } else {
         for (var key in instances) {
             if (instances.hasOwnProperty(key)) {
@@ -168,27 +168,27 @@ zr.dispose = function (zi) {
         }
         instances = {};
     }
-    return zr;
+    return krender;
 };
 
 /**
- * 获取zr实例
- * @param {string} id Zr对象索引
+ * 获取kr实例
+ * @param {string} id KRender对象索引
  */
-zr.getInstance = function (id) {
+krender.getInstance = function (id) {
     return instances[id];
 };
 
 /**
- * 删除zr实例，Zr实例dispose时会调用
- * @param {string} id Zr对象索引
+ * 删除kr实例，KRender实例dispose时会调用
+ * @param {string} id KRender对象索引
  */
-zr.delInstance = function (id) {
+krender.delInstance = function (id) {
     delete instances[id];
 };
 
 /**
- * Zr接口类
+ * KRender接口类
  * storage（M）、painter（V）、handler（C）为内部私有类，外部接口不可见
  *
  * @param {string} id 唯一标识
@@ -196,9 +196,9 @@ zr.delInstance = function (id) {
  * @param {Object} params 个性化参数
  */
 
-var Zr = function () {
-    function Zr(id, dom, opts) {
-        _classCallCheck(this, Zr);
+var KRender = function () {
+    function KRender(id, dom, opts) {
+        _classCallCheck(this, KRender);
 
         opts = opts || {};
 
@@ -231,7 +231,7 @@ var Zr = function () {
      */
 
 
-    _createClass(Zr, [{
+    _createClass(KRender, [{
         key: 'addShape',
         value: function addShape(shape) {
             this.storage.add(shape);
@@ -251,7 +251,7 @@ var Zr = function () {
         }
 
         /**
-         * 释放当前Zr实例（删除包括dom，数据、显示和事件绑定），dispose后Zr不可用
+         * 释放当前KRender实例（删除包括dom，数据、显示和事件绑定），dispose后KRender不可用
          */
 
     }, {
@@ -266,14 +266,14 @@ var Zr = function () {
             this.handler.dispose();
             this.handler = null;
 
-            zr.delInstance(this.id);
+            krender.delInstance(this.id);
         }
     }]);
 
-    return Zr;
+    return KRender;
 }();
 
-exports.default = zr;
+exports.default = krender;
 
 /***/ }),
 /* 3 */
@@ -1111,15 +1111,15 @@ var Handler = function (_EventEmitter) {
                 this._event = event || window.event;
                 var target = this._event.toElement || this._event.relatedTarget || this._event.srcElement || this._event.target;
                 if (target && target != this._domHover) {
-                    this._event.zrX = (typeof this._event.offsetX != 'undefined' ? this._event.offsetX : this._event.layerX) + target.offsetLeft;
-                    this._event.zrY = (typeof this._event.offsetY != 'undefined' ? this._event.offsetY : this._event.layerY) + target.offsetTop;
+                    this._event.krenderX = (typeof this._event.offsetX != 'undefined' ? this._event.offsetX : this._event.layerX) + target.offsetLeft;
+                    this._event.krenderY = (typeof this._event.offsetY != 'undefined' ? this._event.offsetY : this._event.layerY) + target.offsetTop;
                 }
             } else {
                 this._event = event;
                 var touch = this._event.type != 'touchend' ? this._event.targetTouches[0] : this._event.changedTouches[0];
                 if (touch) {
-                    this._event.zrX = touch.clientX - this.root.offsetLeft + document.body.scrollLeft;
-                    this._event.zrY = touch.clientY - this.root.offsetTop + document.body.srcollTop;
+                    this._event.krenderX = touch.clientX - this.root.offsetLeft + document.body.scrollLeft;
+                    this._event.krenderY = touch.clientY - this.root.offsetTop + document.body.srcollTop;
                 }
             }
             return this._event;
@@ -1201,7 +1201,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 /**
- * zr: config默认配置项
+ * kr: config默认配置项
  */
 
 exports.default = {
@@ -1331,12 +1331,12 @@ var EventEmitter = function () {
     }, {
         key: 'getX',
         value: function getX(e) {
-            return typeof e.zrX != 'undefined' && e.zrX || typeof e.offsetX != 'undefined' && e.offsetX || typeof e.layerX != 'undefined' && e.layerX || typeof e.clientX != 'undefined' && e.clientX;
+            return typeof e.krenderX != 'undefined' && e.krenderX || typeof e.offsetX != 'undefined' && e.offsetX || typeof e.layerX != 'undefined' && e.layerX || typeof e.clientX != 'undefined' && e.clientX;
         }
     }, {
         key: 'getY',
         value: function getY(e) {
-            return typeof e.zrY != 'undefined' && e.zrY || typeof e.offsetY != 'undefined' && e.offsetY || typeof e.layerY != 'undefined' && e.layerY || typeof e.clientY != 'undefined' && e.clientY;
+            return typeof e.krenderY != 'undefined' && e.krenderY || typeof e.offsetY != 'undefined' && e.offsetY || typeof e.layerY != 'undefined' && e.layerY || typeof e.clientY != 'undefined' && e.clientY;
         }
     }, {
         key: 'getDelta',
@@ -1661,4 +1661,4 @@ exports.default = Shape;
 /***/ })
 /******/ ]);
 });
-//# sourceMappingURL=zr.js.map
+//# sourceMappingURL=krender.js.map

@@ -1,5 +1,5 @@
 /**
- * zr: config默认配置项
+ * kr: config默认配置项
  */
 
 export default {

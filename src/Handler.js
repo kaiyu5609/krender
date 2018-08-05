@@ -95,15 +95,15 @@ class Handler extends EventEmitter {
                       || this._event.srcElement
                       || this._event.target;
             if (target && target != this._domHover) {
-                this._event.zrX = (typeof this._event.offsetX != 'undefined' ? this._event.offsetX : this._event.layerX) + target.offsetLeft;
-                this._event.zrY = (typeof this._event.offsetY != 'undefined' ? this._event.offsetY : this._event.layerY) + target.offsetTop;
+                this._event.krenderX = (typeof this._event.offsetX != 'undefined' ? this._event.offsetX : this._event.layerX) + target.offsetLeft;
+                this._event.krenderY = (typeof this._event.offsetY != 'undefined' ? this._event.offsetY : this._event.layerY) + target.offsetTop;
             }
         } else {
             this._event = event;
             var touch = this._event.type != 'touchend' ? this._event.targetTouches[0] : this._event.changedTouches[0];
             if (touch) {
-                this._event.zrX = touch.clientX - this.root.offsetLeft + document.body.scrollLeft;
-                this._event.zrY = touch.clientY - this.root.offsetTop + document.body.srcollTop;
+                this._event.krenderX = touch.clientX - this.root.offsetLeft + document.body.scrollLeft;
+                this._event.krenderY = touch.clientY - this.root.offsetTop + document.body.srcollTop;
             }
         }
         return this._event;

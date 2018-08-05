@@ -6,32 +6,32 @@ import shape from './shape';
 
 var instances = {};
 
-var zr = {};
+var krender = {};
 
-zr.version = '0.0.1';
+krender.version = '0.0.1';
 
 /**
- * zr初始化
- * 不让外部直接new Zr实例，提供全局可控同时减少全局污染和降低命名冲突的风险
+ * krender初始化
+ * 不让外部直接new KRender实例，提供全局可控同时减少全局污染和降低命名冲突的风险
  * @param {HTMLElement} dom dom对象
  * @param {Object} opts 
- * @return {Zr} Zr实例
+ * @return {KRender} KRender实例
  */
-zr.init = (dom, opts) => {
-    var zi = new Zr(guid(), dom, opts);
-    instances[zi.id] = zi;
-    return zi;
+krender.init = (dom, opts) => {
+    var kr = new KRender(guid(), dom, opts);
+    instances[kr.id] = kr;
+    return kr;
 };
 
 /**
- * zr实例销毁
- * 可以通过zr.dispose(zi)销毁指定Zr实例
- * 当然也可以直接zi.dispose()自己销毁
- * @param {Zr} zi Zr对象，不传则销毁全部
+ * kr实例销毁
+ * 可以通过zr.dispose(kr)销毁指定KRender实例
+ * 当然也可以直接kr.dispose()自己销毁
+ * @param {KRender} kr KRender对象，不传则销毁全部
  */
-zr.dispose = (zi) => {
-    if (zi) {
-        zi.dispose();
+krender.dispose = (kr) => {
+    if (kr) {
+        kr.dispose();
     } else {
         for (var key in instances) {
             if (instances.hasOwnProperty(key)) {
@@ -40,34 +40,34 @@ zr.dispose = (zi) => {
         }
         instances = {};
     }
-    return zr;
+    return krender;
 };
 
 /**
- * 获取zr实例
- * @param {string} id Zr对象索引
+ * 获取kr实例
+ * @param {string} id KRender对象索引
  */
-zr.getInstance = (id) => {
+krender.getInstance = (id) => {
     return instances[id];
 };
 
 /**
- * 删除zr实例，Zr实例dispose时会调用
- * @param {string} id Zr对象索引
+ * 删除kr实例，KRender实例dispose时会调用
+ * @param {string} id KRender对象索引
  */
-zr.delInstance = (id) => {
+krender.delInstance = (id) => {
     delete instances[id];
 };
 
 /**
- * Zr接口类
+ * KRender接口类
  * storage（M）、painter（V）、handler（C）为内部私有类，外部接口不可见
  *
  * @param {string} id 唯一标识
  * @param {HTMLElement} dom dom对象
  * @param {Object} params 个性化参数
  */
-class Zr {
+class KRender {
     constructor(id, dom, opts) {
 
         opts = opts || {};
@@ -116,7 +116,7 @@ class Zr {
     }
 
     /**
-     * 释放当前Zr实例（删除包括dom，数据、显示和事件绑定），dispose后Zr不可用
+     * 释放当前KRender实例（删除包括dom，数据、显示和事件绑定），dispose后KRender不可用
      */
     dispose() {
         this.storage.disponse();
@@ -128,9 +128,9 @@ class Zr {
         this.handler.dispose();
         this.handler = null;
 
-        zr.delInstance(this.id);
+        krender.delInstance(this.id);
     }
 }
 
-export default zr;
+export default krender;
 

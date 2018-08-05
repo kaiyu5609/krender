@@ -1,3 +1,3 @@
-import zr from './src/zr';
+import krender from './src/krender';
 
-module.exports = zr;
+module.exports = krender;

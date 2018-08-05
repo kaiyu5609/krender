@@ -6,9 +6,9 @@ var config = {
 	],
 	output: {
 		path: path.resolve(__dirname, 'release/'),
-		filename: 'zr.js',
+		filename: 'krender.js',
 		publicPath: 'release',
-		library: 'zr',
+		library: 'krender',
 		libraryTarget: 'umd'
 	},
 	devtool: 'source-map',

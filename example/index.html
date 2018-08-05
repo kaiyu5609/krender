@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="UTF-8">
-	<title>zr</title>
+	<title>krender</title>
 	<style media="screen">
 		.wrapper {
 			height: 200px;
@@ -14,15 +14,15 @@
 
     <div id="main" class="wrapper"></div>
 
-	<script type="text/javascript" src="../release/zr.js"></script>
+	<script type="text/javascript" src="../release/krender.js"></script>
 	<script type="text/javascript">
-		console.log(zr);
+		console.log(krender);
 
 		var container = document.querySelector('#main');
 
-		var z = zr.init(container);
+		var kr = krender.init(container);
 
-		console.log(z);
+		console.log(kr);
 
 		var circle = {
 			shape: 'circle',
@@ -35,14 +35,14 @@
 			}
 		};
 		
-		z.addShape(circle);
-		z.render();
+		kr.addShape(circle);
+		kr.render();
 
-		z.handler.on('resize', function(ev) {
+		kr.handler.on('resize', function(ev) {
 			console.log(ev)
 		});
 
-		z.handler.on('click', function(ev) {
+		kr.handler.on('click', function(ev) {
 			console.log(ev)
 		});
 

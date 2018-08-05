@@ -1,5 +1,5 @@
 {
-  "name": "zr",
+  "name": "krender",
   "version": "0.0.1",
   "description": "a lightweight canvas library",
   "main": "index.js",
@@ -10,17 +10,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kaiyu5609/zr.git"
+    "url": "git+https://github.com/kaiyu5609/krender.git"
   },
   "keywords": [
-    "zr"
+    "krender"
   ],
   "author": "kaiyu5609",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/kaiyu5609/zr/issues"
+    "url": "https://github.com/kaiyu5609/krender/issues"
   },
-  "homepage": "https://github.com/kaiyu5609/zr#readme",
+  "homepage": "https://github.com/kaiyu5609/krender#readme",
   "dependencies": {},
   "devDependencies": {
     "babel-loader": "^7.1.5",

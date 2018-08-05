@@ -77,14 +77,14 @@ class EventEmitter {
     }
 
     getX(e) {
-        return typeof e.zrX != 'undefined' && e.zrX
+        return typeof e.krenderX != 'undefined' && e.krenderX
             || typeof e.offsetX != 'undefined' && e.offsetX
             || typeof e.layerX != 'undefined' && e.layerX
             || typeof e.clientX != 'undefined' && e.clientX;
     }
 
     getY(e) {
-        return typeof e.zrY != 'undefined' && e.zrY
+        return typeof e.krenderY != 'undefined' && e.krenderY
             || typeof e.offsetY != 'undefined' && e.offsetY
             || typeof e.layerY != 'undefined' && e.layerY
             || typeof e.clientY != 'undefined' && e.clientY;
