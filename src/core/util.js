@@ -118,20 +118,7 @@ var _ctx;
 
 function getContext() {
     if (!_ctx) {
-        if (!document.createElement('canvas').getContext
-            && G_vmlCanvasManager
-        ) {
-            var _div = document.createElement('div');
-            _div.style.position = 'absolute';
-            _div.style.top = '-1000px';
-            document.body.appendChild(_div);
-
-            _ctx = G_vmlCanvasManager.initElement(_div)
-                        .getContext('2d');
-        }
-        else {
-            _ctx = document.createElement('canvas').getContext('2d');
-        }
+        _ctx = document.createElement('canvas').getContext('2d');
     }
     return _ctx;
 }

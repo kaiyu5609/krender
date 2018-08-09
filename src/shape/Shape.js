@@ -1,3 +1,4 @@
+import area from '../core/area';
 /**
  * 1.基础配置
  * 2.变换
@@ -136,8 +137,30 @@ class Shape {
 
     }
 
-    isCover() {
+    /**
+     * 默认区域包含判断
+     * @param el 图形实体
+     * @param x 横坐标
+     * @param y 纵坐标
+     */
+    isCover(el, x, y) {
+        var rect;
+        if (el.style.__rect) {
+            rect = el.style.__rect;
+        } else {
+            rect = this.getRect(el.style);
+            rect = [
+                rect.x, rect.x + rect.width,
+                rect.y, rect.y + rect.height
+            ];
+            el.style.__rect = rect;
+        }
 
+        if (x >= rect[0] && x <= rect[1] && y >= rect[2] && y <= rect[3]) {
+            return area.isInside(this, el.style, x, y);
+        } else {
+            return false;
+        }
     }
 
     updateTransform() {

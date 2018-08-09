@@ -93,6 +93,15 @@ class Storage {
     }
 
     /**
+     * 添加高亮层数据
+     * @param {Object} params 参数
+     */
+    addHover(params) {
+        this._hoverElements.push(params);
+        return this;
+    }
+
+    /**
      * 遍历迭代器
      * @param {Function} fn 迭代回调函数，return true终止迭代
      * @param {Object} options 迭代参数，缺省为仅降序遍历常规形状

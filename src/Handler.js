@@ -58,7 +58,29 @@ class Handler extends EventEmitter {
      * @param {event} event dom事件对象
      */
     _mouseMoveHandler(event) {
-        console.log('mousemove:', event);
+        // console.log('mousemove:', event);
+
+        this._event = this._zrenderEventFixed(event);
+        this._lastX = this._mouseX;
+        this._lastY = this._mouseY;
+        this._mouseX = this.getX(this._event);
+        this._mouseY = this.getY(this._event);
+
+        this._hasfound = false;
+        this.storage.iterShape(this._findHover.bind(this), { normal: 'down' });
+
+        if (!this._hasfound) {
+            this._lastHover = null;
+            console.log('hasfound!');
+        }
+
+        this._dispatchAgency(this._lastHover, config.EVENT.MOUSEMOVE);
+
+        if (this._hasfound && this._lastHover.clickable) {
+            this.root.style.cursor = 'pointer';
+        } else {
+            this.root.style.cursor = 'default';
+        }
     }
 
     /**
@@ -85,6 +107,52 @@ class Handler extends EventEmitter {
         }
         this._mouseMoveHandler(this._event);
     }
+
+    /**
+     * 鼠标在某个图形元素上移动
+     */
+    _overShapeHandler() {
+        this._dispatchAgency(this._lastHover, config.EVENT.MOUSEOVER);
+    }
+
+    /**
+     * 鼠标离开某个图形元素
+     */
+    _outShapeHandler() {
+        this._dispatchAgency(this._lastHover, config.EVENT.MOUSEOUT);
+    }
+
+    /**
+     * 迭代函数，查找hover到的图形元素并即时做些事件分发
+     * @param {Object} el 图形元素
+     */
+    _findHover(el) {
+        if (this._draggingTarget && this._draggingTarget.id == el.id) {
+            return false;
+        }
+        if (el.__silent) {
+            return false;
+        }
+        var shapeInstance = this.shape.get(el.shape);
+        if (shapeInstance.isCover(el, this._mouseX, this._mouseY)) {
+            if (el.hoverable) {
+                this.storage.addHover(el);
+            }
+            if (this._lastHover != el) {
+                this._outShapeHandler();
+                this._lastHover = el;
+            }
+            this._overShapeHandler();
+            this._hasfound = true;
+            return true;
+        }
+        return false;
+    }
+
+
+
+
+
 
     // 如果存在第三方嵌入的一些dom触发的事件，或touch事件，需要转换一下事件坐标
     _zrenderEventFixed(event, isTouch) {

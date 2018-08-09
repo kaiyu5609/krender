@@ -26,25 +26,21 @@
 
 		var circle = {
 			shape: 'circle',
+			clickable: true,
 			style: {
 				x: 150,
 				y: 100,
 				r: 50,
 				color: 'lightblue',
 				text: 'Wonderful!'
+			},
+			onmouseover: function(params) {
+				console.log(params);
 			}
 		};
 		
 		kr.addShape(circle);
 		kr.render();
-
-		kr.handler.on('resize', function(ev) {
-			console.log(ev)
-		});
-
-		kr.handler.on('click', function(ev) {
-			console.log(ev)
-		});
 
 	</script>
 </body>

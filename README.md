@@ -18,7 +18,7 @@
 
 ## 快速使用
 
-引用zr.js之后，即可简单绘制圆形。
+引用krender.js之后，即可简单绘制圆形。
 ```html
 <!doctype html>
 <html>

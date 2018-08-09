@@ -70,24 +70,244 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "release";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 1);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(1);
+"use strict";
 
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+/**
+ * 对一个object进行深度拷贝
+ *
+ * @param {Any} source 需要进行拷贝的对象
+ * @return {Any} 拷贝后的新对象
+ */
+function clone(source) {
+    // buildInObject, 用于处理无法遍历Date等对象的问题
+    var buildInObject = {
+        '[object Function]': 1,
+        '[object RegExp]': 1,
+        '[object Date]': 1,
+        '[object Error]': 1,
+        '[object CanvasGradient]': 1
+    };
+    var result = source;
+    var i;
+    var len;
+    if (!source || source instanceof Number || source instanceof String || source instanceof Boolean) {
+        return result;
+    } else if (source instanceof Array) {
+        result = [];
+        var resultLen = 0;
+        for (i = 0, len = source.length; i < len; i++) {
+            result[resultLen++] = this.clone(source[i]);
+        }
+    } else if ('object' == (typeof source === 'undefined' ? 'undefined' : _typeof(source))) {
+        if (buildInObject[Object.prototype.toString.call(source)] || source.__nonRecursion) {
+            return result;
+        }
+        result = {};
+        for (i in source) {
+            if (source.hasOwnProperty(i)) {
+                result[i] = this.clone(source[i]);
+            }
+        }
+    }
+    return result;
+}
+
+/**
+ * 合并源对象的属性到目标对象
+ * modify from Tangram
+ * @param {*} target 目标对象
+ * @param {*} source 源对象
+ * @param {Object} optOptions 选项
+ * @param {boolean} optOptions.overwrite 是否覆盖
+ * @param {boolean} optOptions.recursive 是否递归
+ * @param {boolean} optOptions.whiteList 白名单，如果定义，则仅处理白名单属性
+ */
+var merge = function () {
+    // buildInObject, 用于处理无法遍历Date等对象的问题
+    var buildInObject = {
+        '[object Function]': 1,
+        '[object RegExp]': 1,
+        '[object Date]': 1,
+        '[object Error]': 1,
+        '[object CanvasGradient]': 1
+    };
+    function mergeItem(target, source, index, overwrite, recursive) {
+        if (source.hasOwnProperty(index)) {
+            if (recursive && _typeof(target[index]) == 'object' && buildInObject[Object.prototype.toString.call(target[index])] != 1) {
+                // 如果需要递归覆盖，就递归调用merge
+                merge(target[index], source[index], {
+                    'overwrite': overwrite,
+                    'recursive': recursive
+                });
+            } else if (overwrite || !(index in target)) {
+                // 否则只处理overwrite为true，或者在目标对象中没有此属性的情况
+                target[index] = source[index];
+            }
+        }
+    }
+
+    return function (target, source, optOptions) {
+        var i = 0,
+            options = optOptions || {},
+            overwrite = options['overwrite'],
+            whiteList = options['whiteList'],
+            recursive = options['recursive'],
+            len;
+
+        // 只处理在白名单中的属性
+        if (whiteList && whiteList.length) {
+            len = whiteList.length;
+            for (; i < len; ++i) {
+                mergeItem(target, source, whiteList[i], overwrite, recursive);
+            }
+        } else {
+            for (i in source) {
+                mergeItem(target, source, i, overwrite, recursive);
+            }
+        }
+        return target;
+    };
+}();
+
+var _ctx;
+
+function getContext() {
+    if (!_ctx) {
+        _ctx = document.createElement('canvas').getContext('2d');
+    }
+    return _ctx;
+}
+
+var _canvas;
+var _pixelCtx;
+var _width;
+var _height;
+var _offsetX = 0;
+var _offsetY = 0;
+
+/**
+ * 获取像素拾取专用的上下文
+ * @return {Object} 上下文
+ */
+function getPixelContext() {
+    if (!_pixelCtx) {
+        _canvas = document.createElement('canvas');
+        _width = _canvas.width;
+        _height = _canvas.height;
+        _pixelCtx = _canvas.getContext('2d');
+    }
+    return _pixelCtx;
+}
+
+/**
+ * 如果坐标处在_canvas外部，改变_canvas的大小
+ * @param {number} x : 横坐标
+ * @param {number} y : 纵坐标
+ * 注意 修改canvas的大小 需要重新设置translate
+ */
+function adjustCanvasSize(x, y) {
+    // 每次加的长度
+    var _v = 100;
+    var _flag = false;
+
+    if (x + _offsetX > _width) {
+        _width = x + _offsetX + _v;
+        _canvas.width = _width;
+        _flag = true;
+    }
+
+    if (y + _offsetY > _height) {
+        _height = y + _offsetY + _v;
+        _canvas.height = _height;
+        _flag = true;
+    }
+
+    if (x < -_offsetX) {
+        _offsetX = Math.ceil(-x / _v) * _v;
+        _width += _offsetX;
+        _canvas.width = _width;
+        _flag = true;
+    }
+
+    if (y < -_offsetY) {
+        _offsetY = Math.ceil(-y / _v) * _v;
+        _height += _offsetY;
+        _canvas.height = _height;
+        _flag = true;
+    }
+
+    if (_flag) {
+        _pixelCtx.translate(_offsetX, _offsetY);
+    }
+}
+
+/**
+ * 获取像素canvas的偏移量
+ * @return {Object} 偏移量
+ */
+function getPixelOffset() {
+    return {
+        x: _offsetX,
+        y: _offsetY
+    };
+}
+
+/**
+ * 查询数组中元素的index
+ */
+function indexOf(array, value) {
+    if (array.indexOf) {
+        return array.indexOf(value);
+    }
+    for (var i = 0, len = array.length; i < len; i++) {
+        if (array[i] === value) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+exports.default = {
+    clone: clone,
+    merge: merge,
+    getContext: getContext,
+
+    getPixelContext: getPixelContext,
+    getPixelOffset: getPixelOffset,
+    adjustCanvasSize: adjustCanvasSize,
+
+    indexOf: indexOf
+};
 
 /***/ }),
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
+module.exports = __webpack_require__(2);
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
 "use strict";
 
 
-var _krender = __webpack_require__(2);
+var _krender = __webpack_require__(3);
 
 var _krender2 = _interopRequireDefault(_krender);
 
@@ -96,7 +316,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 module.exports = _krender2.default;
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -108,11 +328,11 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _guid = __webpack_require__(3);
+var _guid = __webpack_require__(4);
 
 var _guid2 = _interopRequireDefault(_guid);
 
-var _Storage = __webpack_require__(4);
+var _Storage = __webpack_require__(5);
 
 var _Storage2 = _interopRequireDefault(_Storage);
 
@@ -251,11 +471,24 @@ var KRender = function () {
         }
 
         /**
-         * 释放当前KRender实例（删除包括dom，数据、显示和事件绑定），dispose后KRender不可用
+         * 事件绑定
+         * @param {string} eventName 事件名称
+         * @param {Function} eventListener 响应函数
          */
 
     }, {
+        key: 'on',
+        value: function on(eventName, eventListener) {
+            this.handler.on(eventName, eventListener);
+            return this;
+        }
+    }, {
         key: 'dispose',
+
+
+        /**
+         * 释放当前KRender实例（删除包括dom，数据、显示和事件绑定），dispose后KRender不可用
+         */
         value: function dispose() {
             this.storage.disponse();
             this.storage = null;
@@ -276,7 +509,7 @@ var KRender = function () {
 exports.default = krender;
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -293,7 +526,7 @@ exports.default = function () {
 var idStart = 0x0907;
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -305,7 +538,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _util = __webpack_require__(5);
+var _util = __webpack_require__(0);
 
 var _util2 = _interopRequireDefault(_util);
 
@@ -407,6 +640,18 @@ var Storage = function () {
 
             this._maxZlevel = Math.max(this._maxZlevel, el.zlevel);
             this._changedZlevel[el.zlevel] = true;
+        }
+
+        /**
+         * 添加高亮层数据
+         * @param {Object} params 参数
+         */
+
+    }, {
+        key: 'addHover',
+        value: function addHover(params) {
+            this._hoverElements.push(params);
+            return this;
         }
 
         /**
@@ -512,235 +757,6 @@ var Storage = function () {
 }();
 
 exports.default = Storage;
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-/**
- * 对一个object进行深度拷贝
- *
- * @param {Any} source 需要进行拷贝的对象
- * @return {Any} 拷贝后的新对象
- */
-function clone(source) {
-    // buildInObject, 用于处理无法遍历Date等对象的问题
-    var buildInObject = {
-        '[object Function]': 1,
-        '[object RegExp]': 1,
-        '[object Date]': 1,
-        '[object Error]': 1,
-        '[object CanvasGradient]': 1
-    };
-    var result = source;
-    var i;
-    var len;
-    if (!source || source instanceof Number || source instanceof String || source instanceof Boolean) {
-        return result;
-    } else if (source instanceof Array) {
-        result = [];
-        var resultLen = 0;
-        for (i = 0, len = source.length; i < len; i++) {
-            result[resultLen++] = this.clone(source[i]);
-        }
-    } else if ('object' == (typeof source === 'undefined' ? 'undefined' : _typeof(source))) {
-        if (buildInObject[Object.prototype.toString.call(source)] || source.__nonRecursion) {
-            return result;
-        }
-        result = {};
-        for (i in source) {
-            if (source.hasOwnProperty(i)) {
-                result[i] = this.clone(source[i]);
-            }
-        }
-    }
-    return result;
-}
-
-/**
- * 合并源对象的属性到目标对象
- * modify from Tangram
- * @param {*} target 目标对象
- * @param {*} source 源对象
- * @param {Object} optOptions 选项
- * @param {boolean} optOptions.overwrite 是否覆盖
- * @param {boolean} optOptions.recursive 是否递归
- * @param {boolean} optOptions.whiteList 白名单，如果定义，则仅处理白名单属性
- */
-var merge = function () {
-    // buildInObject, 用于处理无法遍历Date等对象的问题
-    var buildInObject = {
-        '[object Function]': 1,
-        '[object RegExp]': 1,
-        '[object Date]': 1,
-        '[object Error]': 1,
-        '[object CanvasGradient]': 1
-    };
-    function mergeItem(target, source, index, overwrite, recursive) {
-        if (source.hasOwnProperty(index)) {
-            if (recursive && _typeof(target[index]) == 'object' && buildInObject[Object.prototype.toString.call(target[index])] != 1) {
-                // 如果需要递归覆盖，就递归调用merge
-                merge(target[index], source[index], {
-                    'overwrite': overwrite,
-                    'recursive': recursive
-                });
-            } else if (overwrite || !(index in target)) {
-                // 否则只处理overwrite为true，或者在目标对象中没有此属性的情况
-                target[index] = source[index];
-            }
-        }
-    }
-
-    return function (target, source, optOptions) {
-        var i = 0,
-            options = optOptions || {},
-            overwrite = options['overwrite'],
-            whiteList = options['whiteList'],
-            recursive = options['recursive'],
-            len;
-
-        // 只处理在白名单中的属性
-        if (whiteList && whiteList.length) {
-            len = whiteList.length;
-            for (; i < len; ++i) {
-                mergeItem(target, source, whiteList[i], overwrite, recursive);
-            }
-        } else {
-            for (i in source) {
-                mergeItem(target, source, i, overwrite, recursive);
-            }
-        }
-        return target;
-    };
-}();
-
-var _ctx;
-
-function getContext() {
-    if (!_ctx) {
-        if (!document.createElement('canvas').getContext && G_vmlCanvasManager) {
-            var _div = document.createElement('div');
-            _div.style.position = 'absolute';
-            _div.style.top = '-1000px';
-            document.body.appendChild(_div);
-
-            _ctx = G_vmlCanvasManager.initElement(_div).getContext('2d');
-        } else {
-            _ctx = document.createElement('canvas').getContext('2d');
-        }
-    }
-    return _ctx;
-}
-
-var _canvas;
-var _pixelCtx;
-var _width;
-var _height;
-var _offsetX = 0;
-var _offsetY = 0;
-
-/**
- * 获取像素拾取专用的上下文
- * @return {Object} 上下文
- */
-function getPixelContext() {
-    if (!_pixelCtx) {
-        _canvas = document.createElement('canvas');
-        _width = _canvas.width;
-        _height = _canvas.height;
-        _pixelCtx = _canvas.getContext('2d');
-    }
-    return _pixelCtx;
-}
-
-/**
- * 如果坐标处在_canvas外部，改变_canvas的大小
- * @param {number} x : 横坐标
- * @param {number} y : 纵坐标
- * 注意 修改canvas的大小 需要重新设置translate
- */
-function adjustCanvasSize(x, y) {
-    // 每次加的长度
-    var _v = 100;
-    var _flag = false;
-
-    if (x + _offsetX > _width) {
-        _width = x + _offsetX + _v;
-        _canvas.width = _width;
-        _flag = true;
-    }
-
-    if (y + _offsetY > _height) {
-        _height = y + _offsetY + _v;
-        _canvas.height = _height;
-        _flag = true;
-    }
-
-    if (x < -_offsetX) {
-        _offsetX = Math.ceil(-x / _v) * _v;
-        _width += _offsetX;
-        _canvas.width = _width;
-        _flag = true;
-    }
-
-    if (y < -_offsetY) {
-        _offsetY = Math.ceil(-y / _v) * _v;
-        _height += _offsetY;
-        _canvas.height = _height;
-        _flag = true;
-    }
-
-    if (_flag) {
-        _pixelCtx.translate(_offsetX, _offsetY);
-    }
-}
-
-/**
- * 获取像素canvas的偏移量
- * @return {Object} 偏移量
- */
-function getPixelOffset() {
-    return {
-        x: _offsetX,
-        y: _offsetY
-    };
-}
-
-/**
- * 查询数组中元素的index
- */
-function indexOf(array, value) {
-    if (array.indexOf) {
-        return array.indexOf(value);
-    }
-    for (var i = 0, len = array.length; i < len; i++) {
-        if (array[i] === value) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-exports.default = {
-    clone: clone,
-    merge: merge,
-    getContext: getContext,
-
-    getPixelContext: getPixelContext,
-    getPixelOffset: getPixelOffset,
-    adjustCanvasSize: adjustCanvasSize,
-
-    indexOf: indexOf
-};
 
 /***/ }),
 /* 6 */
@@ -1068,7 +1084,29 @@ var Handler = function (_EventEmitter) {
     }, {
         key: '_mouseMoveHandler',
         value: function _mouseMoveHandler(event) {
-            console.log('mousemove:', event);
+            // console.log('mousemove:', event);
+
+            this._event = this._zrenderEventFixed(event);
+            this._lastX = this._mouseX;
+            this._lastY = this._mouseY;
+            this._mouseX = this.getX(this._event);
+            this._mouseY = this.getY(this._event);
+
+            this._hasfound = false;
+            this.storage.iterShape(this._findHover.bind(this), { normal: 'down' });
+
+            if (!this._hasfound) {
+                this._lastHover = null;
+                console.log('hasfound!');
+            }
+
+            this._dispatchAgency(this._lastHover, _config2.default.EVENT.MOUSEMOVE);
+
+            if (this._hasfound && this._lastHover.clickable) {
+                this.root.style.cursor = 'pointer';
+            } else {
+                this.root.style.cursor = 'default';
+            }
         }
 
         /**
@@ -1100,6 +1138,56 @@ var Handler = function (_EventEmitter) {
                 this._dispatchAgency(this._lastHover, _config2.default.EVENT.CLICK);
             }
             this._mouseMoveHandler(this._event);
+        }
+
+        /**
+         * 鼠标在某个图形元素上移动
+         */
+
+    }, {
+        key: '_overShapeHandler',
+        value: function _overShapeHandler() {
+            this._dispatchAgency(this._lastHover, _config2.default.EVENT.MOUSEOVER);
+        }
+
+        /**
+         * 鼠标离开某个图形元素
+         */
+
+    }, {
+        key: '_outShapeHandler',
+        value: function _outShapeHandler() {
+            this._dispatchAgency(this._lastHover, _config2.default.EVENT.MOUSEOUT);
+        }
+
+        /**
+         * 迭代函数，查找hover到的图形元素并即时做些事件分发
+         * @param {Object} el 图形元素
+         */
+
+    }, {
+        key: '_findHover',
+        value: function _findHover(el) {
+            if (this._draggingTarget && this._draggingTarget.id == el.id) {
+                return false;
+            }
+            if (el.__silent) {
+                return false;
+            }
+            var shapeInstance = this.shape.get(el.shape);
+            if (shapeInstance.isCover(el, this._mouseX, this._mouseY)) {
+                if (el.hoverable) {
+                    this.storage.addHover(el);
+                }
+                if (this._lastHover != el) {
+                    this._outShapeHandler();
+                    this._lastHover = el;
+                }
+                this._overShapeHandler();
+                this._hasfound = true;
+                return true;
+            }
+            return false;
         }
 
         // 如果存在第三方嵌入的一些dom触发的事件，或touch事件，需要转换一下事件坐标
@@ -1497,6 +1585,12 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _area = __webpack_require__(13);
+
+var _area2 = _interopRequireDefault(_area);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
@@ -1643,9 +1737,32 @@ var Shape = function () {
     }, {
         key: 'drift',
         value: function drift() {}
+
+        /**
+         * 默认区域包含判断
+         * @param el 图形实体
+         * @param x 横坐标
+         * @param y 纵坐标
+         */
+
     }, {
         key: 'isCover',
-        value: function isCover() {}
+        value: function isCover(el, x, y) {
+            var rect;
+            if (el.style.__rect) {
+                rect = el.style.__rect;
+            } else {
+                rect = this.getRect(el.style);
+                rect = [rect.x, rect.x + rect.width, rect.y, rect.y + rect.height];
+                el.style.__rect = rect;
+            }
+
+            if (x >= rect[0] && x <= rect[1] && y >= rect[2] && y <= rect[3]) {
+                return _area2.default.isInside(this, el.style, x, y);
+            } else {
+                return false;
+            }
+        }
     }, {
         key: 'updateTransform',
         value: function updateTransform() {
@@ -1657,6 +1774,84 @@ var Shape = function () {
 }();
 
 exports.default = Shape;
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _util = __webpack_require__(0);
+
+var _util2 = _interopRequireDefault(_util);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var _ctx = void 0;
+
+var zoneComputeMethod = {
+    circle: function circle(area, x, y) {
+        // 圆形包含判断
+        return (x - area.x) * (x - area.x) + (y - area.y) * (y - area.y) < area.r * area.r;
+    },
+    line: function line(area, x, y) {// 线段包含判断
+
+    }
+};
+
+/**
+ * 矩形包含判断
+ */
+var _isInsideRectangle = function _isInsideRectangle(area, x, y) {
+    if (x >= area.x && x <= area.x + area.width && y >= area.y && y <= area.y + area.height) {
+        return true;
+    }
+    return false;
+};
+
+var zoneComputer = function zoneComputer(zoneType, area, x, y) {
+    if (typeof zoneComputeMethod[zoneType] === 'function') {
+        return zoneComputeMethod[zoneType](area, x, y);
+    }
+};
+
+/**
+ * 包含判断(是否在区域内部)
+ * @param {string} shapeClazz : 图形类
+ * @param {Object} area ： 目标区域
+ * @param {number} x ： 横坐标
+ * @param {number} y ： 纵坐标
+ */
+var isInside = function isInside(shapeClazz, area, x, y) {
+    if (!shapeClazz || !area) {
+        return false;
+    }
+
+    var zoneType = shapeClazz.type;
+
+    if (!_ctx) {
+        _ctx = _util2.default.getContext();
+    }
+    // 不在矩形区域内直接返回false
+    if (!_isInsideRectangle(shapeClazz.getRect(area), x, y)) {
+        return false;
+    }
+
+    var zoneReturn = zoneComputer(zoneType, area, x, y);
+
+    if (typeof zoneReturn != 'undefined') {
+        return zoneReturn;
+    }
+};
+
+exports.default = {
+    isInside: isInside
+};
 
 /***/ })
 /******/ ]);
