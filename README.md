@@ -43,12 +43,30 @@
 
 		var circle = {
 			shape: 'circle',
+			clickable: true,
 			style: {
 				x: 150,
 				y: 100,
 				r: 50,
 				color: 'lightblue',
 				text: 'Wonderful!'
+			},
+			highlightStyle: {
+				color: 'lightskyblue',
+				strokeColor: 'steelblue',
+				lineWidth: '4',
+				brushType: 'both'
+			},
+			onmouseover: function(params) {
+				kr.addHoverShape({
+					shape: 'circle',
+					style: {
+						x: 300,
+						y: 100,
+						r: 20,
+						color: 'orange'
+					}
+				});
 			}
 		};
 		

@@ -8,7 +8,7 @@ var instances = {};
 
 var krender = {};
 
-krender.version = '0.0.1';
+krender.version = '0.0.3';
 
 /**
  * krender初始化
@@ -105,6 +105,16 @@ class KRender {
         this.storage.add(shape);
         return this;
     }
+
+    /**
+     * 添加额外高亮层显示，仅提供添加方法，每次刷新后高亮层图形均被清空
+     * @param {Object} shape 形状对象
+     */
+    addHoverShape(shape) {
+        this.storage.addHover(shape);
+        return this;
+    }
+
 
     /**
      * 渲染

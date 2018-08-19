@@ -1,4 +1,4 @@
-import util from './core/util';
+import krUtil from './core/util';
 
 
 class Storage {
@@ -78,7 +78,7 @@ class Storage {
             'scale': [1, 1, 0, 0]
         };
 
-        util.merge(el, shape, {
+        krUtil.merge(el, shape, {
             'overwrite': true, 'recursive': true
         });
 
@@ -99,6 +99,18 @@ class Storage {
     addHover(params) {
         this._hoverElements.push(params);
         return this;
+    }
+
+    /**
+     * 删除高亮层数据
+     */
+    delHover() {
+        this._hoverElements = [];
+        return this;
+    }
+
+    hasHoverShape() {
+        return this._hoverElements.length > 0;
     }
 
     /**

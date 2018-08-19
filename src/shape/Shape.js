@@ -1,4 +1,6 @@
 import area from '../core/area';
+import color from '../tool/color';
+
 /**
  * 1.基础配置
  * 2.变换
@@ -84,7 +86,7 @@ class Shape {
             ctx.fillStyle = style.color;
         }
         if (style.strokeColor) {
-            ctx.strokeColor = style.strokeColor;
+            ctx.strokeStyle = style.strokeColor;
         }
         if (typeof style.opcacity != 'undefined') {
             ctx.globalAlpha = style.opcacity;
@@ -93,7 +95,7 @@ class Shape {
             ctx.lineCap = style.lineCap;
         }
         if (style.lineJoin) {
-            ctx.lineCap = style.lineJoin;
+            ctx.lineJoin = style.lineJoin;
         }
         if (style.miterLimit) {
             ctx.miterLimit = style.miterLimit;
@@ -125,8 +127,27 @@ class Shape {
         console.log('drawText:', style.text);
     }
 
-    getHighlightStyle() {
+    /**
+     * 根据默认样式扩展高亮样式
+     * @param ctx Canvas 2D上下文
+     * @param {Object} style 默认样式
+     * @param {Object} highlightStyle 高亮样式
+     */
+    getHighlightStyle(style, highlightStyle, brushTypeOnly) {
+        var highlightColor = color.getHighlightColor();
 
+        var newStyle = {};
+        for (var key in style) {
+            newStyle[key] = style[key];
+        }
+
+        newStyle.strokeColor = highlightStyle.strokeColor || 'rgba(50, 132, 255, 1)';// TODO
+
+        for (var key in highlightStyle) {
+            newStyle[key] = highlightStyle[key];
+        }
+
+        return newStyle;
     }
 
     getHighlightZoom() {

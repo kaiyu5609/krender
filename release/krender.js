@@ -459,6 +459,18 @@ var KRender = function () {
         }
 
         /**
+         * 添加额外高亮层显示，仅提供添加方法，每次刷新后高亮层图形均被清空
+         * @param {Object} shape 形状对象
+         */
+
+    }, {
+        key: 'addHoverShape',
+        value: function addHoverShape(shape) {
+            this.storage.addHover(shape);
+            return this;
+        }
+
+        /**
          * 渲染
          * @param {Function} callback  渲染结束后回调函数
          */
@@ -471,24 +483,11 @@ var KRender = function () {
         }
 
         /**
-         * 事件绑定
-         * @param {string} eventName 事件名称
-         * @param {Function} eventListener 响应函数
-         */
-
-    }, {
-        key: 'on',
-        value: function on(eventName, eventListener) {
-            this.handler.on(eventName, eventListener);
-            return this;
-        }
-    }, {
-        key: 'dispose',
-
-
-        /**
          * 释放当前KRender实例（删除包括dom，数据、显示和事件绑定），dispose后KRender不可用
          */
+
+    }, {
+        key: 'dispose',
         value: function dispose() {
             this.storage.disponse();
             this.storage = null;
@@ -652,6 +651,22 @@ var Storage = function () {
         value: function addHover(params) {
             this._hoverElements.push(params);
             return this;
+        }
+
+        /**
+         * 删除高亮层数据
+         */
+
+    }, {
+        key: 'delHover',
+        value: function delHover() {
+            this._hoverElements = [];
+            return this;
+        }
+    }, {
+        key: 'hasHoverShape',
+        value: function hasHoverShape() {
+            return this._hoverElements.length > 0;
         }
 
         /**
@@ -835,7 +850,7 @@ var Painter = function () {
             }
 
             this._domList['hover'] = this._createDom('hover', 'canvas');
-            this._domList['hover'].id = '_zrender_hover_';
+            this._domList['hover'].id = '_krender_hover_';
             this._domRoot.appendChild(this._domList['hover']);
             this._ctxList['hover'] = this._domList['hover'].getContext('2d');
         }
@@ -914,6 +929,22 @@ var Painter = function () {
         }
 
         /**
+         * 鼠标悬浮刷画
+         */
+
+    }, {
+        key: '_brushHover',
+        value: function _brushHover(el) {
+            var ctx = this._ctxList['hover'];
+
+            if (!el.onbrush // 没有onbrush
+            // 有onbrush并没有调用执行返回false或undefined则继续粉刷
+             || el.onbrush && !el.onbrush(ctx, el, true)) {
+                this.shape.get(el.shape).brush(ctx, el, true, self.update);
+            }
+        }
+
+        /**
          * 首次绘图，创建各种dom和context
          * @param {Function} callback 绘画结束后的回调函数
          */
@@ -958,6 +989,31 @@ var Painter = function () {
         value: function update(shapeList, callback) {
             console.log('update');
 
+            return this;
+        }
+
+        /**
+         * 刷新hover层
+         */
+
+    }, {
+        key: 'refreshHover',
+        value: function refreshHover() {
+            this.clearHover();
+
+            this.storage.iterShape(this._brushHover.bind(this), { hover: true });
+            this.storage.delHover();
+            return this;
+        }
+
+        /**
+         * 清除hover层所有内容
+         */
+
+    }, {
+        key: 'clearHover',
+        value: function clearHover() {
+            this._ctxList && this._ctxList['hover'] && this._ctxList['hover'].clearRect(0, 0, this._width, this._height);
             return this;
         }
     }, {
@@ -1096,11 +1152,20 @@ var Handler = function (_EventEmitter) {
             this.storage.iterShape(this._findHover.bind(this), { normal: 'down' });
 
             if (!this._hasfound) {
+                console.log('has not found!');
+
                 this._lastHover = null;
-                console.log('hasfound!');
+                this.storage.delHover();
+                this.painter.clearHover();
             }
 
             this._dispatchAgency(this._lastHover, _config2.default.EVENT.MOUSEMOVE);
+
+            if (this._hasfound || this.storage.hasHoverShape()) {
+                console.log('brush hover');
+
+                this.painter.refreshHover();
+            }
 
             if (this._hasfound && this._lastHover.clickable) {
                 this.root.style.cursor = 'pointer';
@@ -1589,6 +1654,10 @@ var _area = __webpack_require__(13);
 
 var _area2 = _interopRequireDefault(_area);
 
+var _color = __webpack_require__(14);
+
+var _color2 = _interopRequireDefault(_color);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -1685,7 +1754,7 @@ var Shape = function () {
                 ctx.fillStyle = style.color;
             }
             if (style.strokeColor) {
-                ctx.strokeColor = style.strokeColor;
+                ctx.strokeStyle = style.strokeColor;
             }
             if (typeof style.opcacity != 'undefined') {
                 ctx.globalAlpha = style.opcacity;
@@ -1694,7 +1763,7 @@ var Shape = function () {
                 ctx.lineCap = style.lineCap;
             }
             if (style.lineJoin) {
-                ctx.lineCap = style.lineJoin;
+                ctx.lineJoin = style.lineJoin;
             }
             if (style.miterLimit) {
                 ctx.miterLimit = style.miterLimit;
@@ -1728,9 +1797,32 @@ var Shape = function () {
         value: function drawText(ctx, style, normalStyle) {
             console.log('drawText:', style.text);
         }
+
+        /**
+         * 根据默认样式扩展高亮样式
+         * @param ctx Canvas 2D上下文
+         * @param {Object} style 默认样式
+         * @param {Object} highlightStyle 高亮样式
+         */
+
     }, {
         key: 'getHighlightStyle',
-        value: function getHighlightStyle() {}
+        value: function getHighlightStyle(style, highlightStyle, brushTypeOnly) {
+            var highlightColor = _color2.default.getHighlightColor();
+
+            var newStyle = {};
+            for (var key in style) {
+                newStyle[key] = style[key];
+            }
+
+            newStyle.strokeColor = highlightStyle.strokeColor || 'rgba(50, 132, 255, 1)'; // TODO
+
+            for (var key in highlightStyle) {
+                newStyle[key] = highlightStyle[key];
+            }
+
+            return newStyle;
+        }
     }, {
         key: 'getHighlightZoom',
         value: function getHighlightZoom() {}
@@ -1851,6 +1943,37 @@ var isInside = function isInside(shapeClazz, area, x, y) {
 
 exports.default = {
     isInside: isInside
+};
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _util = __webpack_require__(0);
+
+var _util2 = _interopRequireDefault(_util);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var highlightColor = 'rgba(255,255,0,0.5)';
+
+/**
+ * 获取默认高亮颜色
+ */
+function getHighlightColor() {
+    return highlightColor;
+}
+
+exports.default = {
+
+    getHighlightColor: getHighlightColor
 };
 
 /***/ })

@@ -70,11 +70,20 @@ class Handler extends EventEmitter {
         this.storage.iterShape(this._findHover.bind(this), { normal: 'down' });
 
         if (!this._hasfound) {
+            console.log('has not found!');
+
             this._lastHover = null;
-            console.log('hasfound!');
+            this.storage.delHover();
+            this.painter.clearHover();
         }
 
         this._dispatchAgency(this._lastHover, config.EVENT.MOUSEMOVE);
+
+        if (this._hasfound || this.storage.hasHoverShape()) {
+            console.log('brush hover');
+
+            this.painter.refreshHover();
+        }
 
         if (this._hasfound && this._lastHover.clickable) {
             this.root.style.cursor = 'pointer';

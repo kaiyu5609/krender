@@ -56,7 +56,7 @@ class Painter {
         }
 
         this._domList['hover'] = this._createDom('hover', 'canvas');
-        this._domList['hover'].id = '_zrender_hover_';
+        this._domList['hover'].id = '_krender_hover_';
         this._domRoot.appendChild(this._domList['hover']);
         this._ctxList['hover'] = this._domList['hover'].getContext('2d');
     }
@@ -127,6 +127,20 @@ class Painter {
     }
 
     /**
+     * 鼠标悬浮刷画
+     */
+    _brushHover(el) {
+        var ctx = this._ctxList['hover'];
+
+        if (!el.onbrush// 没有onbrush
+            // 有onbrush并没有调用执行返回false或undefined则继续粉刷
+            || (el.onbrush && !el.onbrush(ctx, el, true))
+        ) {
+            this.shape.get(el.shape).brush(ctx, el, true, self.update);
+        }
+    }
+
+    /**
      * 首次绘图，创建各种dom和context
      * @param {Function} callback 绘画结束后的回调函数
      */
@@ -162,6 +176,25 @@ class Painter {
     update(shapeList, callback) {
         console.log('update');
 
+        return this;
+    }
+
+    /**
+     * 刷新hover层
+     */
+    refreshHover() {
+        this.clearHover();
+
+        this.storage.iterShape(this._brushHover.bind(this), { hover: true });
+        this.storage.delHover();
+        return this;
+    }
+
+    /**
+     * 清除hover层所有内容
+     */
+    clearHover() {
+        this._ctxList && this._ctxList['hover'] && this._ctxList['hover'].clearRect(0, 0, this._width, this._height);
         return this;
     }
 

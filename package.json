@@ -1,6 +1,6 @@
 {
   "name": "krender",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "a lightweight canvas library",
   "main": "release/krender.js",
   "scripts": {
