@@ -8,7 +8,7 @@ var instances = {};
 
 var krender = {};
 
-krender.version = '0.0.3';
+krender.version = '0.0.4';
 
 /**
  * krender初始化
@@ -115,6 +115,16 @@ class KRender {
         return this;
     }
 
+    /**
+     * 修改图形形状
+     * @param {string} shapeId 形状对象唯一标识
+     * @param {Object} shape 形状对象
+     */
+    modShape(shapeId, shape) {
+        this.storage.mod(shapeId, shape);
+        return this;
+    }
+
 
     /**
      * 渲染
@@ -123,6 +133,24 @@ class KRender {
     render(callback) {
         this.painter.render(callback);
         return this;
+    }
+
+    /**
+     * 视图更新
+     * @param {Function} callback  视图更新后回调函数
+     */
+    refresh(callback) {
+        this.painter.refresh(callback);
+        return this;
+    }
+
+    /**
+     * 生成形状唯一ID
+     * @param {string} [idPrefix] id前缀
+     * @return {string} 不重复ID
+     */
+    newShapeId(idPrefix) {
+        return this.storage.newShapeId(idPrefix);
     }
 
     /**

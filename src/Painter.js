@@ -163,8 +163,27 @@ class Painter {
      * @param {Function} callback 刷新结束后的回调函数
      */
     refresh(callback) {
-        console.log('refresh');
-        
+        this._syncMaxZlevelCanvase();
+
+        var changedZlevel = this.storage.getChangedZlevel();
+
+        if (changedZlevel.all) {
+            this.clear();
+        } else {
+            for (var k in changedZlevel) {
+                if (this._ctxList[k]) {
+                    this._ctxList[k].clearRect(0, 0, this._width, this._height);
+                }
+            }
+        }
+
+        this.storage.iterShape(this._brush(changedZlevel).bind(this), { normal: 'up' });
+        this.storage.clearChangedZlevel();
+
+        if (typeof callback === 'function') {
+            callback();
+        }
+
         return this;
     }
 
@@ -176,6 +195,18 @@ class Painter {
     update(shapeList, callback) {
         console.log('update');
 
+        return this;
+    }
+
+    /**
+     * 清除hover层外所有内容
+     */
+    clear() {
+        for (var k in this._ctxList) {
+            if (k == 'hover') {
+                this._ctxList[k].clearRect(0, 0, this._width, this._height);
+            }
+        }
         return this;
     }
 

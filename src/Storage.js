@@ -68,7 +68,7 @@ class Storage {
         var self = this;
         var el = {
             'shape': 'circle',// 形状
-            'id': self.newShapeId(),// 唯一标识
+            'id': shape.id || self.newShapeId(),// 唯一标识
             'zlevel': 0,// z轴位置
             'draggable': false,// 可拖拽
             'clickable': false,// 可点击
@@ -93,11 +93,34 @@ class Storage {
     }
 
     /**
-     * 添加高亮层数据
-     * @param {Object} params 参数
+     * 修改
+     * @param {string} idx 唯一标识
+     * @param {Object} shape参数
      */
-    addHover(params) {
-        this._hoverElements.push(params);
+    mod(shapeId, shape) {
+        var el = this._elements[shapeId];
+
+        if (el) {
+            this._changedZlevel[el.zlevel] = true;
+
+            krUtil.merge(el, shape, {
+                'overwrite': true, 'recursive': true
+            });
+
+            this._mark(el);
+            this._changedZlevel[el.zlevel] = true;
+            this._maxZlevel = Math.max(this._maxZlevel, el.zlevel);
+        }
+
+        return this;
+    }
+
+    /**
+     * 添加高亮层数据
+     * @param {Object} shape 参数
+     */
+    addHover(shape) {
+        this._hoverElements.push(shape);
         return this;
     }
 

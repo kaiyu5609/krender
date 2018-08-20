@@ -24,8 +24,11 @@
 
 		console.log(kr);
 
+		var shapeId = kr.newShapeId();
+
 		var circle = {
 			shape: 'circle',
+			id: shapeId,
 			clickable: true,
 			style: {
 				x: 150,
@@ -43,15 +46,17 @@
 			onmouseover: function(params) {
 				console.log(params);
 
-				kr.addHoverShape({
+				kr.modShape(shapeId, {
 					shape: 'circle',
 					style: {
-						x: 300,
+						x: 150,
 						y: 100,
-						r: 20,
+						r: 60,
 						color: 'orange'
 					}
 				});
+
+				kr.refresh();
 			}
 		};
 		

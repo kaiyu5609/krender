@@ -356,7 +356,7 @@ var instances = {};
 
 var krender = {};
 
-krender.version = '0.0.1';
+krender.version = '0.0.3';
 
 /**
  * krender初始化
@@ -471,6 +471,19 @@ var KRender = function () {
         }
 
         /**
+         * 修改图形形状
+         * @param {string} shapeId 形状对象唯一标识
+         * @param {Object} shape 形状对象
+         */
+
+    }, {
+        key: 'modShape',
+        value: function modShape(shapeId, shape) {
+            this.storage.mod(shapeId, shape);
+            return this;
+        }
+
+        /**
          * 渲染
          * @param {Function} callback  渲染结束后回调函数
          */
@@ -480,6 +493,30 @@ var KRender = function () {
         value: function render(callback) {
             this.painter.render(callback);
             return this;
+        }
+
+        /**
+         * 视图更新
+         * @param {Function} callback  视图更新后回调函数
+         */
+
+    }, {
+        key: 'refresh',
+        value: function refresh(callback) {
+            this.painter.refresh(callback);
+            return this;
+        }
+
+        /**
+         * 生成形状唯一ID
+         * @param {string} [idPrefix] id前缀
+         * @return {string} 不重复ID
+         */
+
+    }, {
+        key: 'newShapeId',
+        value: function newShapeId(idPrefix) {
+            return this.storage.newShapeId(idPrefix);
         }
 
         /**
@@ -617,7 +654,7 @@ var Storage = function () {
             var self = this;
             var el = {
                 'shape': 'circle', // 形状
-                'id': self.newShapeId(), // 唯一标识
+                'id': shape.id || self.newShapeId(), // 唯一标识
                 'zlevel': 0, // z轴位置
                 'draggable': false, // 可拖拽
                 'clickable': false, // 可点击
@@ -642,14 +679,40 @@ var Storage = function () {
         }
 
         /**
+         * 修改
+         * @param {string} idx 唯一标识
+         * @param {Object} shape参数
+         */
+
+    }, {
+        key: 'mod',
+        value: function mod(shapeId, shape) {
+            var el = this._elements[shapeId];
+
+            if (el) {
+                this._changedZlevel[el.zlevel] = true;
+
+                _util2.default.merge(el, shape, {
+                    'overwrite': true, 'recursive': true
+                });
+
+                this._mark(el);
+                this._changedZlevel[el.zlevel] = true;
+                this._maxZlevel = Math.max(this._maxZlevel, el.zlevel);
+            }
+
+            return this;
+        }
+
+        /**
          * 添加高亮层数据
-         * @param {Object} params 参数
+         * @param {Object} shape 参数
          */
 
     }, {
         key: 'addHover',
-        value: function addHover(params) {
-            this._hoverElements.push(params);
+        value: function addHover(shape) {
+            this._hoverElements.push(shape);
             return this;
         }
 
@@ -973,7 +1036,26 @@ var Painter = function () {
     }, {
         key: 'refresh',
         value: function refresh(callback) {
-            console.log('refresh');
+            this._syncMaxZlevelCanvase();
+
+            var changedZlevel = this.storage.getChangedZlevel();
+
+            if (changedZlevel.all) {
+                this.clear();
+            } else {
+                for (var k in changedZlevel) {
+                    if (this._ctxList[k]) {
+                        this._ctxList[k].clearRect(0, 0, this._width, this._height);
+                    }
+                }
+            }
+
+            this.storage.iterShape(this._brush(changedZlevel).bind(this), { normal: 'up' });
+            this.storage.clearChangedZlevel();
+
+            if (typeof callback === 'function') {
+                callback();
+            }
 
             return this;
         }
@@ -989,6 +1071,21 @@ var Painter = function () {
         value: function update(shapeList, callback) {
             console.log('update');
 
+            return this;
+        }
+
+        /**
+         * 清除hover层外所有内容
+         */
+
+    }, {
+        key: 'clear',
+        value: function clear() {
+            for (var k in this._ctxList) {
+                if (k == 'hover') {
+                    this._ctxList[k].clearRect(0, 0, this._width, this._height);
+                }
+            }
             return this;
         }
 
