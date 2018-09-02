@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>krender</title>
+	<style media="screen">
+		.wrapper {
+			height: 200px;
+			background: #efefef;
+		}
+	</style>
+</head>
+<body>
+
+    <div id="main" class="wrapper"></div>
+
+	<script type="text/javascript" src="../release/krender.js"></script>
+	<script type="text/javascript">
+		console.log(krender);
+
+		var container = document.querySelector('#main');
+
+		var kr = krender.init(container);
+
+		console.log(kr);
+
+		var shapeId = kr.newShapeId();
+
+		var circle = {
+			shape: 'circle',
+			id: shapeId,
+			clickable: true,
+			style: {
+				x: 150,
+				y: 100,
+				r: 50,
+				color: 'lightblue',
+				text: 'Wonderful!'
+			},
+			highlightStyle: {
+				color: 'lightskyblue',
+				strokeColor: 'steelblue',
+				lineWidth: '4',
+				brushType: 'both'
+			},
+			onmouseover: function(params) {
+				console.log(params);
+
+				kr.modShape(shapeId, {
+					shape: 'circle',
+					style: {
+						x: 150,
+						y: 100,
+						r: 60,
+						color: 'orange'
+					}
+				});
+
+				kr.refresh();
+			}
+		};
+		
+		kr.addShape(circle);
+        kr.render();
+        
+        kr.handler.on('resize', function(ev) {
+            kr.resize();
+        });
+
+	</script>
+</body>
+</html>

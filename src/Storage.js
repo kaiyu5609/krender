@@ -211,6 +211,11 @@ class Storage {
         return this._changedZlevel;
     }
 
+    setChangedZlevel(level) {
+        this._changedZlevel[level] = true;
+        return this;
+    }
+
     clearChangedZlevel() {
         this._changedZlevel = {};
         return this;

@@ -199,6 +199,39 @@ class Painter {
     }
 
     /**
+     * 区域大小变化后重绘
+     */
+    resize() {
+        var width, height, dom;
+
+        this._domRoot.style.display = 'none';
+        width = this._getWidth();
+        height = this._getHeight();
+        this._domRoot.style.display = '';
+
+        if (this._width != width || this._height != height) {
+            this._width = width;
+            this._height = height;
+
+            this._domRoot.style.width = this._width + 'px';
+            this._domRoot.style.height = this._height + 'px';
+
+            for (var i in this._domList) {
+                dom = this._domList[i];
+                dom.setAttribute('width', this._width);
+                dom.setAttribute('height', this._height);
+                dom.style.width = this._width + 'px';
+                dom.style.height = this._height + 'px';
+            }
+
+            this.storage.setChangedZlevel('all');
+            this.refresh();
+        }
+        return this;
+    }
+
+
+    /**
      * 清除hover层外所有内容
      */
     clear() {

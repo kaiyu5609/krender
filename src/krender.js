@@ -144,6 +144,11 @@ class KRender {
         return this;
     }
 
+    resize() {
+        this.painter.resize();
+        return this;
+    }
+
     /**
      * 生成形状唯一ID
      * @param {string} [idPrefix] id前缀
