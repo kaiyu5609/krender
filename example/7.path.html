@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>krender</title>
+	<style media="screen">
+		.wrapper {
+			height: 200px;
+			background: #efefef;
+		}
+	</style>
+</head>
+<body>
+
+    <div id="main" class="wrapper"></div>
+
+	<script type="text/javascript" src="../release/krender.js"></script>
+	<script type="text/javascript">
+		console.log(krender);
+
+		var container = document.querySelector('#main');
+
+		var kr = krender.init(container);
+
+		console.log(kr);
+
+		var path = {
+			shape: 'path',
+            style: {
+                x: 200,
+                y: 50,
+                path: 'M 0 0 L -100 100 L 100 100 Z',
+                color: '#7bc87d',
+            },
+            onmouseover: function(params) {
+                console.log(params);
+            }
+		};
+		
+		kr.addShape(path);
+        kr.render();
+
+	</script>
+</body>
+</html>

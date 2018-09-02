@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>krender</title>
+	<style media="screen">
+		.wrapper {
+			height: 200px;
+			background: #efefef;
+		}
+	</style>
+</head>
+<body>
+
+    <div id="main" class="wrapper"></div>
+
+	<script type="text/javascript" src="../release/krender.js"></script>
+	<script type="text/javascript">
+		console.log(krender);
+
+		var container = document.querySelector('#main');
+
+		var kr = krender.init(container);
+
+		console.log(kr);
+
+		var brokenline = {
+			shape: 'brokenline',
+			clickable: true,
+			style: {
+				pointList : [
+                    [100, 50], [150, 100], [200, 50], [250, 200], [300, 50]
+                ],
+                strokeColor: '#61a1f8',
+                lineWidth: '2'
+			},
+			highlightStyle: {
+				strokeColor: '#316cbf',
+				lineWidth: '2',
+				brushType: 'stroke'
+			},
+			onmouseover: function(params) {
+				console.log(params);
+			}
+		};
+		
+		kr.addShape(brokenline);
+        kr.render();
+
+	</script>
+</body>
+</html>

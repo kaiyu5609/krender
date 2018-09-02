@@ -1,4 +1,10 @@
-import Circle from './shape/Circle'; 
+import Circle from './shape/Circle';
+import Rect from './shape/Rect';
+import Path from './shape/Path';
+import Line from './shape/Line';
+import BezierCurve from './shape/BezierCurve';
+import BrokenLine from './shape/BrokenLine';
+
 
 var _shapeLibrary = {};
 
@@ -23,5 +29,11 @@ var shape = {
 };
 
 shape.define('circle', new Circle());
+shape.define('rect', new Rect());
+shape.define('path', new Path());
+shape.define('line', new Line());
+shape.define('beziercurve', new BezierCurve());
+shape.define('brokenline', new BrokenLine());
+
 
 export default shape;

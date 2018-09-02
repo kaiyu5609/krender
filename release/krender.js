@@ -70,11 +70,241 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "release";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 1);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _area = __webpack_require__(13);
+
+var _area2 = _interopRequireDefault(_area);
+
+var _color = __webpack_require__(14);
+
+var _color2 = _interopRequireDefault(_color);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * 1.基础配置
+ * 2.变换
+ * 3.样式
+ * 4.交互属性
+ * 5.事件
+ * 
+ */
+
+var Shape = function () {
+    function Shape() {
+        _classCallCheck(this, Shape);
+    }
+
+    /**
+     * 画刷
+     * @param ctx       画布句柄
+     * @param el         形状实体
+     * @param isHighlight   是否为高亮状态
+     * @param updateCallback 需要异步加载资源的shape可以通过这个callback(el)
+     *                       让painter更新视图，shape.brush没用，需要的话重载brush
+     */
+
+
+    _createClass(Shape, [{
+        key: 'brush',
+        value: function brush(ctx, el, isHighlight) {
+            var style = el.style || {};
+            var highlightStyle = el.highlightStyle || {};
+
+            if (this.brushTypeOnly) {
+                style.brushType = this.brushTypeOnly;
+            }
+
+            if (isHighlight) {
+                style = this.getHighlightStyle(style, highlightStyle, this.brushTypeOnly);
+            }
+
+            if (this.brushTypeOnly == 'stroke') {
+                style.strokeColor = style.strokeColor || style.color;
+            }
+
+            ctx.save();
+            this.setContext(ctx, style);
+
+            if (el.__needTransform) {
+                ctx.transform.apply(ctx, this.updateTransform(el));
+            }
+
+            ctx.beginPath();
+            this.buildPath(ctx, style);
+            if (this.brushTypeOnly != 'stroke') {
+                ctx.closePath();
+            }
+
+            switch (style.brushType) {
+                case 'fill':
+                    ctx.fill();
+                    break;
+                case 'stroke':
+                    ctx.stroke();
+                    break;
+                case 'both':
+                    ctx.stroke();
+                    ctx.fill();
+                    break;
+                default:
+                    ctx.fill();
+            }
+
+            if (style.text) {
+                this.drawText(ctx, style, el.style);
+            }
+
+            ctx.restore();
+
+            return this;
+        }
+
+        /**
+         * 画布通用设置
+         * @param ctx       画布句柄
+         * @param style     通用样式
+         */
+
+    }, {
+        key: 'setContext',
+        value: function setContext(ctx, style) {
+            if (style.color) {
+                ctx.fillStyle = style.color;
+            }
+            if (style.strokeColor) {
+                ctx.strokeStyle = style.strokeColor;
+            }
+            if (typeof style.opcacity != 'undefined') {
+                ctx.globalAlpha = style.opcacity;
+            }
+            if (style.lineCap) {
+                ctx.lineCap = style.lineCap;
+            }
+            if (style.lineJoin) {
+                ctx.lineJoin = style.lineJoin;
+            }
+            if (style.miterLimit) {
+                ctx.miterLimit = style.miterLimit;
+            }
+            if (typeof style.lineWidth != 'undefined') {
+                ctx.lineWidth = style.lineWidth;
+            }
+            if (typeof style.shadowBlur != 'undefined') {
+                ctx.shadowBlur = style.shadowBlur;
+            }
+            if (style.shadowColor) {
+                ctx.shadowColor = style.shadowColor;
+            }
+            if (typeof style.shadowOffsetX != 'undefined') {
+                ctx.shadowOffsetX = style.shadowOffsetX;
+            }
+            if (typeof style.shadowOffsetY != 'undefined') {
+                ctx.shadowOffsetY = style.shadowOffsetY;
+            }
+        }
+
+        /**
+         * 附加文本
+         * @param {Context2D} ctx Canvas 2D上下文
+         * @param {Object} style 样式
+         * @param {Object} normalStyle 默认样式，用于定位文字显示
+         */
+
+    }, {
+        key: 'drawText',
+        value: function drawText(ctx, style, normalStyle) {
+            console.log('drawText:', style.text);
+        }
+
+        /**
+         * 根据默认样式扩展高亮样式
+         * @param ctx Canvas 2D上下文
+         * @param {Object} style 默认样式
+         * @param {Object} highlightStyle 高亮样式
+         */
+
+    }, {
+        key: 'getHighlightStyle',
+        value: function getHighlightStyle(style, highlightStyle, brushTypeOnly) {
+            var highlightColor = _color2.default.getHighlightColor();
+
+            var newStyle = {};
+            for (var key in style) {
+                newStyle[key] = style[key];
+            }
+
+            newStyle.strokeColor = highlightStyle.strokeColor || 'rgba(50, 132, 255, 1)'; // TODO
+
+            for (var key in highlightStyle) {
+                newStyle[key] = highlightStyle[key];
+            }
+
+            return newStyle;
+        }
+    }, {
+        key: 'getHighlightZoom',
+        value: function getHighlightZoom() {}
+    }, {
+        key: 'drift',
+        value: function drift() {}
+
+        /**
+         * 默认区域包含判断
+         * @param el 图形实体
+         * @param x 横坐标
+         * @param y 纵坐标
+         */
+
+    }, {
+        key: 'isCover',
+        value: function isCover(el, x, y) {
+            var rect;
+            if (el.style.__rect) {
+                rect = el.style.__rect;
+            } else {
+                rect = this.getRect(el.style);
+                rect = [rect.x, rect.x + rect.width, rect.y, rect.y + rect.height];
+                el.style.__rect = rect;
+            }
+
+            if (x >= rect[0] && x <= rect[1] && y >= rect[2] && y <= rect[3]) {
+                return _area2.default.isInside(this, el.style, x, y);
+            } else {
+                return false;
+            }
+        }
+    }, {
+        key: 'updateTransform',
+        value: function updateTransform() {
+            console.log('updateTransform');
+        }
+    }]);
+
+    return Shape;
+}();
+
+exports.default = Shape;
+
+/***/ }),
+/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -294,20 +524,20 @@ exports.default = {
 };
 
 /***/ }),
-/* 1 */
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(2);
+module.exports = __webpack_require__(3);
 
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var _krender = __webpack_require__(3);
+var _krender = __webpack_require__(4);
 
 var _krender2 = _interopRequireDefault(_krender);
 
@@ -316,7 +546,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 module.exports = _krender2.default;
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -328,23 +558,23 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _guid = __webpack_require__(4);
+var _guid = __webpack_require__(5);
 
 var _guid2 = _interopRequireDefault(_guid);
 
-var _Storage = __webpack_require__(5);
+var _Storage = __webpack_require__(6);
 
 var _Storage2 = _interopRequireDefault(_Storage);
 
-var _Painter = __webpack_require__(6);
+var _Painter = __webpack_require__(7);
 
 var _Painter2 = _interopRequireDefault(_Painter);
 
-var _Handler = __webpack_require__(7);
+var _Handler = __webpack_require__(8);
 
 var _Handler2 = _interopRequireDefault(_Handler);
 
-var _shape = __webpack_require__(10);
+var _shape = __webpack_require__(11);
 
 var _shape2 = _interopRequireDefault(_shape);
 
@@ -551,7 +781,7 @@ var KRender = function () {
 exports.default = krender;
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -568,7 +798,7 @@ exports.default = function () {
 var idStart = 0x0907;
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -580,7 +810,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _util = __webpack_require__(0);
+var _util = __webpack_require__(1);
 
 var _util2 = _interopRequireDefault(_util);
 
@@ -849,7 +1079,7 @@ var Storage = function () {
 exports.default = Storage;
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1187,7 +1417,7 @@ var Painter = function () {
 exports.default = Painter;
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1199,11 +1429,11 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _config = __webpack_require__(8);
+var _config = __webpack_require__(9);
 
 var _config2 = _interopRequireDefault(_config);
 
-var _EventEmitter2 = __webpack_require__(9);
+var _EventEmitter2 = __webpack_require__(10);
 
 var _EventEmitter3 = _interopRequireDefault(_EventEmitter2);
 
@@ -1488,7 +1718,7 @@ var Handler = function (_EventEmitter) {
 exports.default = Handler;
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1528,7 +1758,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1658,7 +1888,7 @@ var EventEmitter = function () {
 exports.default = EventEmitter;
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1668,9 +1898,29 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _Circle = __webpack_require__(11);
+var _Circle = __webpack_require__(12);
 
 var _Circle2 = _interopRequireDefault(_Circle);
+
+var _Rect = __webpack_require__(15);
+
+var _Rect2 = _interopRequireDefault(_Rect);
+
+var _Path = __webpack_require__(16);
+
+var _Path2 = _interopRequireDefault(_Path);
+
+var _Line = __webpack_require__(17);
+
+var _Line2 = _interopRequireDefault(_Line);
+
+var _BezierCurve = __webpack_require__(18);
+
+var _BezierCurve2 = _interopRequireDefault(_BezierCurve);
+
+var _BrokenLine = __webpack_require__(19);
+
+var _BrokenLine2 = _interopRequireDefault(_BrokenLine);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -1699,11 +1949,16 @@ var shape = {
 };
 
 shape.define('circle', new _Circle2.default());
+shape.define('rect', new _Rect2.default());
+shape.define('path', new _Path2.default());
+shape.define('line', new _Line2.default());
+shape.define('beziercurve', new _BezierCurve2.default());
+shape.define('brokenline', new _BrokenLine2.default());
 
 exports.default = shape;
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1715,7 +1970,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _Shape2 = __webpack_require__(12);
+var _Shape2 = __webpack_require__(0);
 
 var _Shape3 = _interopRequireDefault(_Shape2);
 
@@ -1782,236 +2037,6 @@ var Circle = function (_Shape) {
 exports.default = Circle;
 
 /***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _area = __webpack_require__(13);
-
-var _area2 = _interopRequireDefault(_area);
-
-var _color = __webpack_require__(14);
-
-var _color2 = _interopRequireDefault(_color);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * 1.基础配置
- * 2.变换
- * 3.样式
- * 4.交互属性
- * 5.事件
- * 
- */
-
-var Shape = function () {
-    function Shape() {
-        _classCallCheck(this, Shape);
-    }
-
-    /**
-     * 画刷
-     * @param ctx       画布句柄
-     * @param el         形状实体
-     * @param isHighlight   是否为高亮状态
-     * @param updateCallback 需要异步加载资源的shape可以通过这个callback(el)
-     *                       让painter更新视图，shape.brush没用，需要的话重载brush
-     */
-
-
-    _createClass(Shape, [{
-        key: 'brush',
-        value: function brush(ctx, el, isHighlight) {
-            var style = el.style || {};
-            var highlightStyle = el.highlightStyle || {};
-
-            if (this.brushTypeOnly) {
-                style.brushType = this.brushTypeOnly;
-            }
-
-            if (isHighlight) {
-                style = this.getHighlightStyle(style, highlightStyle, this.brushTypeOnly);
-            }
-
-            if (this.brushTypeOnly == 'stroke') {
-                style.strokeColor = style.strokeColor || style.color;
-            }
-
-            ctx.save();
-            this.setContext(ctx, style);
-
-            if (el.__needTransform) {
-                ctx.transform.apply(ctx, this.updateTransform(el));
-            }
-
-            ctx.beginPath();
-            this.buildPath(ctx, style);
-            if (this.brushTypeOnly != 'stroke') {
-                ctx.closePath();
-            }
-
-            switch (style.brushType) {
-                case 'fill':
-                    ctx.fill();
-                    break;
-                case 'stroke':
-                    ctx.stroke();
-                    break;
-                case 'both':
-                    ctx.stroke();
-                    ctx.fill();
-                    break;
-                default:
-                    ctx.fill();
-            }
-
-            if (style.text) {
-                this.drawText(ctx, style, el.style);
-            }
-
-            ctx.restore();
-
-            return this;
-        }
-
-        /**
-         * 画布通用设置
-         * @param ctx       画布句柄
-         * @param style     通用样式
-         */
-
-    }, {
-        key: 'setContext',
-        value: function setContext(ctx, style) {
-            if (style.color) {
-                ctx.fillStyle = style.color;
-            }
-            if (style.strokeColor) {
-                ctx.strokeStyle = style.strokeColor;
-            }
-            if (typeof style.opcacity != 'undefined') {
-                ctx.globalAlpha = style.opcacity;
-            }
-            if (style.lineCap) {
-                ctx.lineCap = style.lineCap;
-            }
-            if (style.lineJoin) {
-                ctx.lineJoin = style.lineJoin;
-            }
-            if (style.miterLimit) {
-                ctx.miterLimit = style.miterLimit;
-            }
-            if (typeof style.lineWidth != 'undefined') {
-                ctx.lineWidth = style.lineWidth;
-            }
-            if (typeof style.shadowBlur != 'undefined') {
-                ctx.shadowBlur = style.shadowBlur;
-            }
-            if (style.shadowColor) {
-                ctx.shadowColor = style.shadowColor;
-            }
-            if (typeof style.shadowOffsetX != 'undefined') {
-                ctx.shadowOffsetX = style.shadowOffsetX;
-            }
-            if (typeof style.shadowOffsetY != 'undefined') {
-                ctx.shadowOffsetY = style.shadowOffsetY;
-            }
-        }
-
-        /**
-         * 附加文本
-         * @param {Context2D} ctx Canvas 2D上下文
-         * @param {Object} style 样式
-         * @param {Object} normalStyle 默认样式，用于定位文字显示
-         */
-
-    }, {
-        key: 'drawText',
-        value: function drawText(ctx, style, normalStyle) {
-            console.log('drawText:', style.text);
-        }
-
-        /**
-         * 根据默认样式扩展高亮样式
-         * @param ctx Canvas 2D上下文
-         * @param {Object} style 默认样式
-         * @param {Object} highlightStyle 高亮样式
-         */
-
-    }, {
-        key: 'getHighlightStyle',
-        value: function getHighlightStyle(style, highlightStyle, brushTypeOnly) {
-            var highlightColor = _color2.default.getHighlightColor();
-
-            var newStyle = {};
-            for (var key in style) {
-                newStyle[key] = style[key];
-            }
-
-            newStyle.strokeColor = highlightStyle.strokeColor || 'rgba(50, 132, 255, 1)'; // TODO
-
-            for (var key in highlightStyle) {
-                newStyle[key] = highlightStyle[key];
-            }
-
-            return newStyle;
-        }
-    }, {
-        key: 'getHighlightZoom',
-        value: function getHighlightZoom() {}
-    }, {
-        key: 'drift',
-        value: function drift() {}
-
-        /**
-         * 默认区域包含判断
-         * @param el 图形实体
-         * @param x 横坐标
-         * @param y 纵坐标
-         */
-
-    }, {
-        key: 'isCover',
-        value: function isCover(el, x, y) {
-            var rect;
-            if (el.style.__rect) {
-                rect = el.style.__rect;
-            } else {
-                rect = this.getRect(el.style);
-                rect = [rect.x, rect.x + rect.width, rect.y, rect.y + rect.height];
-                el.style.__rect = rect;
-            }
-
-            if (x >= rect[0] && x <= rect[1] && y >= rect[2] && y <= rect[3]) {
-                return _area2.default.isInside(this, el.style, x, y);
-            } else {
-                return false;
-            }
-        }
-    }, {
-        key: 'updateTransform',
-        value: function updateTransform() {
-            console.log('updateTransform');
-        }
-    }]);
-
-    return Shape;
-}();
-
-exports.default = Shape;
-
-/***/ }),
 /* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -2022,7 +2047,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _util = __webpack_require__(0);
+var _util = __webpack_require__(1);
 
 var _util2 = _interopRequireDefault(_util);
 
@@ -2035,8 +2060,76 @@ var zoneComputeMethod = {
         // 圆形包含判断
         return (x - area.x) * (x - area.x) + (y - area.y) * (y - area.y) < area.r * area.r;
     },
-    line: function line(area, x, y) {// 线段包含判断
+    rect: function rect(area, x, y) {
+        // 矩形包含判断
+        if (x >= area.x && x <= area.x + area.width && y >= area.y && y <= area.y + area.height) {
+            return true;
+        }
+        return false;
+    },
+    path: function path(area, x, y) {
+        // 路径包含判断 -> TODO，暂不支持
+        console.log('TODO，暂不支持');
 
+        return false;
+    },
+    line: function line(area, x, y) {
+        // 线段包含判断
+        var _x1 = area.xStart;
+        var _y1 = area.yStart;
+        var _x2 = area.xEnd;
+        var _y2 = area.yEnd;
+        var _l = area.lineWidth;
+        var _a = 0;
+        var _b = _x1;
+
+        if (_x1 !== _x2) {
+            _a = (_y1 - _y2) / (_x1 - _x2);
+            _b = (_x1 * _y2 - _x2 * _y1) / (_x1 - _x2);
+        } else {
+            return Math.abs(x - _x1) <= _l / 2;
+        }
+
+        var _s = (_a * x - y + _b) * (_a * x - y + _b) / (_a * _a + 1);
+
+        return _s <= _l / 2 * _l / 2;
+    },
+    beziercurve: function beziercurve(area, x, y) {
+        // 曲线包含判断 -> TODO，暂不支持
+        console.log('TODO，暂不支持');
+
+        return false;
+    },
+    brokenline: function brokenline(area, x, y) {
+        var pointList = area.pointList;
+        var lineArea;
+        var insideCatch = false;
+
+        for (var i = 0, l = pointList.length - 1; i < l; i++) {
+            lineArea = {
+                xStart: pointList[i][0],
+                yStart: pointList[i][1],
+                xEnd: pointList[i + 1][0],
+                yEnd: pointList[i + 1][1],
+                lineWidth: area.lineWidth
+            };
+            if (!this.rect({
+                x: Math.min(lineArea.xStart, lineArea.xEnd) - lineArea.lineWidth,
+                y: Math.min(lineArea.yStart, lineArea.yEnd) - lineArea.lineWidth,
+                width: Math.abs(lineArea.xStart - lineArea.xEnd) + lineArea.lineWidth,
+                height: Math.abs(lineArea.yStart - lineArea.yEnd) + lineArea.lineWidth
+            }, x, y)) {
+                // 不在矩形区内跳过
+                continue;
+            }
+
+            insideCatch = this.line(lineArea, x, y);
+            if (insideCatch) {
+                break;
+            }
+        }
+
+        return insideCatch;
     }
 };
 
@@ -2100,7 +2193,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _util = __webpack_require__(0);
+var _util = __webpack_require__(1);
 
 var _util2 = _interopRequireDefault(_util);
 
@@ -2119,6 +2212,908 @@ exports.default = {
 
     getHighlightColor: getHighlightColor
 };
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _Shape2 = __webpack_require__(0);
+
+var _Shape3 = _interopRequireDefault(_Shape2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Rect = function (_Shape) {
+    _inherits(Rect, _Shape);
+
+    function Rect() {
+        _classCallCheck(this, Rect);
+
+        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Rect).call(this));
+
+        _this.type = 'rect';
+        return _this;
+    }
+
+    /**
+     * 创建矩形路径
+     * @param {Context2D} ctx Canvas 2D上下文
+     * @param {Object} style 样式
+     */
+
+
+    _createClass(Rect, [{
+        key: 'buildPath',
+        value: function buildPath(ctx, style) {
+            ctx.moveTo(style.x, style.y);
+            ctx.lineTo(style.x + style.width, style.y);
+            ctx.lineTo(style.x + style.width, style.y + style.height);
+            ctx.lineTo(style.x, style.y + style.height);
+            ctx.lineTo(style.x, style.y);
+            // ctx.rect(style.x, style.y, style.width, style.height);
+            return this;
+        }
+
+        /**
+         * 返回矩形区域，用于局部刷新和文字定位
+         * @param {Object} style
+         */
+
+    }, {
+        key: 'getRect',
+        value: function getRect(style) {
+            var lineWidth;
+            if (style.brushType == 'stroke' || style.brushType == 'fill') {
+                lineWidth = style.lineWidth || 1;
+            } else {
+                lineWidth = 0;
+            }
+            return {
+                x: Math.round(style.x - lineWidth / 2),
+                y: Math.round(style.y - lineWidth / 2),
+                width: style.width + lineWidth,
+                height: style.height + lineWidth
+            };
+        }
+    }]);
+
+    return Rect;
+}(_Shape3.default);
+
+exports.default = Rect;
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _Shape2 = __webpack_require__(0);
+
+var _Shape3 = _interopRequireDefault(_Shape2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Path = function (_Shape) {
+    _inherits(Path, _Shape);
+
+    function Path() {
+        _classCallCheck(this, Path);
+
+        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Path).call(this));
+
+        _this.type = 'path';
+        return _this;
+    }
+
+    _createClass(Path, [{
+        key: '_parsePathData',
+        value: function _parsePathData(data) {
+            // data = "M 0 0 L -100 100 L 100 100 Z";
+            if (!data) {
+                return [];
+            }
+
+            var cs = data;
+
+            var cc = ['m', 'M', 'l', 'L', 'v', 'V', 'h', 'H', 'z', 'Z', 'c', 'C', 'q', 'Q', 't', 'T', 's', 'S', 'a', 'A'];
+
+            cs = cs.replace(/  /g, ' ');
+            cs = cs.replace(/ /g, ',');
+            cs = cs.replace(/,,/g, ',');
+            // cs = "M,0,0,L,-100,100,L,100,100,Z";
+
+            var n;
+            for (n = 0; n < cc.length; n++) {
+                cs = cs.replace(new RegExp(cc[n], 'g'), '|' + cc[n]);
+            }
+            // cs = "|M,0,0,|L,-100,100,|L,100,100,|Z";
+
+            var arr = cs.split('|');
+            // arr = ["", "M,0,0,", "L,-100,100,", "L,100,100,", "Z"];
+
+            var ca = [];
+            var cpx = 0;
+            var cpy = 0;
+
+            for (n = 1; n < arr.length; n++) {
+                var str = arr[n];
+                var c = str.charAt(0);
+                str = str.slice(1);
+                str = str.replace(new RegExp('e,-', 'g'), 'e-');
+
+                var p = str.split(',');
+                if (p.length > 0 && p[0] === '') {
+                    p.shift();
+                }
+
+                for (var i = 0; i < p.length; i++) {
+                    p[i] = parseFloat(p[i]);
+                }
+
+                while (p.length > 0) {
+                    if (isNaN(p[0])) {
+                        break;
+                    }
+                    var cmd = null;
+                    var points = [];
+
+                    var ctlPtx;
+                    var ctlPty;
+                    var prevCmd;
+
+                    var rx;
+                    var ry;
+                    var psi;
+                    var fa;
+                    var fs;
+
+                    var x1 = cpx;
+                    var y1 = cpy;
+
+                    // convert l, H, h, V, and v to L
+                    switch (c) {
+                        case 'l':
+                            cpx += p.shift();
+                            cpy += p.shift();
+                            cmd = 'L';
+                            points.push(cpx, cpy);
+                            break;
+                        case 'L':
+                            cpx = p.shift();
+                            cpy = p.shift();
+                            points.push(cpx, cpy);
+                            break;
+                        case 'm':
+                            cpx += p.shift();
+                            cpy += p.shift();
+                            cmd = 'M';
+                            points.push(cpx, cpy);
+                            c = 'l';
+                            break;
+                        case 'M':
+                            cpx = p.shift();
+                            cpy = p.shift();
+                            cmd = 'M';
+                            points.push(cpx, cpy);
+                            c = 'L';
+                            break;
+
+                        case 'h':
+                            cpx += p.shift();
+                            cmd = 'L';
+                            points.push(cpx, cpy);
+                            break;
+                        case 'H':
+                            cpx = p.shift();
+                            cmd = 'L';
+                            points.push(cpx, cpy);
+                            break;
+                        case 'v':
+                            cpy += p.shift();
+                            cmd = 'L';
+                            points.push(cpx, cpy);
+                            break;
+                        case 'V':
+                            cpy = p.shift();
+                            cmd = 'L';
+                            points.push(cpx, cpy);
+                            break;
+                        case 'C':
+                            points.push(p.shift(), p.shift(), p.shift(), p.shift());
+                            cpx = p.shift();
+                            cpy = p.shift();
+                            points.push(cpx, cpy);
+                            break;
+                        case 'c':
+                            points.push(cpx + p.shift(), cpy + p.shift(), cpx + p.shift(), cpy + p.shift());
+                            cpx += p.shift();
+                            cpy += p.shift();
+                            cmd = 'C';
+                            points.push(cpx, cpy);
+                            break;
+                        case 'S':
+                            ctlPtx = cpx;
+                            ctlPty = cpy;
+                            prevCmd = ca[ca.length - 1];
+                            if (prevCmd.command === 'C') {
+                                ctlPtx = cpx + (cpx - prevCmd.points[2]);
+                                ctlPty = cpy + (cpy - prevCmd.points[3]);
+                            }
+                            points.push(ctlPtx, ctlPty, p.shift(), p.shift());
+                            cpx = p.shift();
+                            cpy = p.shift();
+                            cmd = 'C';
+                            points.push(cpx, cpy);
+                            break;
+                        case 's':
+                            ctlPtx = cpx, ctlPty = cpy;
+                            prevCmd = ca[ca.length - 1];
+                            if (prevCmd.command === 'C') {
+                                ctlPtx = cpx + (cpx - prevCmd.points[2]);
+                                ctlPty = cpy + (cpy - prevCmd.points[3]);
+                            }
+                            points.push(ctlPtx, ctlPty, cpx + p.shift(), cpy + p.shift());
+                            cpx += p.shift();
+                            cpy += p.shift();
+                            cmd = 'C';
+                            points.push(cpx, cpy);
+                            break;
+                        case 'Q':
+                            points.push(p.shift(), p.shift());
+                            cpx = p.shift();
+                            cpy = p.shift();
+                            points.push(cpx, cpy);
+                            break;
+                        case 'q':
+                            points.push(cpx + p.shift(), cpy + p.shift());
+                            cpx += p.shift();
+                            cpy += p.shift();
+                            cmd = 'Q';
+                            points.push(cpx, cpy);
+                            break;
+                        case 'T':
+                            ctlPtx = cpx, ctlPty = cpy;
+                            prevCmd = ca[ca.length - 1];
+                            if (prevCmd.command === 'Q') {
+                                ctlPtx = cpx + (cpx - prevCmd.points[0]);
+                                ctlPty = cpy + (cpy - prevCmd.points[1]);
+                            }
+                            cpx = p.shift();
+                            cpy = p.shift();
+                            cmd = 'Q';
+                            points.push(ctlPtx, ctlPty, cpx, cpy);
+                            break;
+                        case 't':
+                            ctlPtx = cpx, ctlPty = cpy;
+                            prevCmd = ca[ca.length - 1];
+                            if (prevCmd.command === 'Q') {
+                                ctlPtx = cpx + (cpx - prevCmd.points[0]);
+                                ctlPty = cpy + (cpy - prevCmd.points[1]);
+                            }
+                            cpx += p.shift();
+                            cpy += p.shift();
+                            cmd = 'Q';
+                            points.push(ctlPtx, ctlPty, cpx, cpy);
+                            break;
+                        case 'A':
+                            rx = p.shift();
+                            ry = p.shift();
+                            psi = p.shift();
+                            fa = p.shift();
+                            fs = p.shift();
+
+                            x1 = cpx, y1 = cpy;
+                            cpx = p.shift(), cpy = p.shift();
+                            cmd = 'A';
+                            points = this._convertPoint(x1, y1, cpx, cpy, fa, fs, rx, ry, psi);
+                            break;
+                        case 'a':
+                            rx = p.shift();
+                            ry = p.shift();
+                            psi = p.shift();
+                            fa = p.shift();
+                            fs = p.shift();
+
+                            x1 = cpx, y1 = cpy;
+                            cpx += p.shift();
+                            cpy += p.shift();
+                            cmd = 'A';
+                            points = this._convertPoint(x1, y1, cpx, cpy, fa, fs, rx, ry, psi);
+                            break;
+
+                    }
+
+                    ca.push({
+                        command: cmd || c,
+                        points: points
+                    });
+                }
+
+                if (c === 'z' || c === 'Z') {
+                    ca.push({
+                        command: 'z',
+                        points: []
+                    });
+                }
+            }
+
+            return ca;
+        }
+    }, {
+        key: '_convertPoint',
+        value: function _convertPoint(x1, y1, x2, y2, fa, fs, rx, ry, psiDeg) {
+            var psi = psiDeg * (Math.PI / 180.0);
+            var xp = Math.cos(psi) * (x1 - x2) / 2.0 + Math.sin(psi) * (y1 - y2) / 2.0;
+            var yp = -1 * Math.sin(psi) * (x1 - x2) / 2.0 + Math.cos(psi) * (y1 - y2) / 2.0;
+
+            var lambda = xp * xp / (rx * rx) + yp * yp / (ry * ry);
+
+            if (lambda > 1) {
+                rx *= Math.sqrt(lambda);
+                ry *= Math.sqrt(lambda);
+            }
+
+            var f = Math.sqrt((rx * rx * (ry * ry) - rx * rx * (yp * yp) - ry * ry * (xp * xp)) / (rx * rx * (yp * yp) + ry * ry * (xp * xp)));
+
+            if (fa === fs) {
+                f *= -1;
+            }
+            if (isNaN(f)) {
+                f = 0;
+            }
+
+            var cxp = f * rx * yp / ry;
+            var cyp = f * -ry * xp / rx;
+
+            var cx = (x1 + x2) / 2.0 + Math.cos(psi) * cxp - Math.sin(psi) * cyp;
+            var cy = (y1 + y2) / 2.0 + Math.sin(psi) * cxp + Math.cos(psi) * cyp;
+
+            var vMag = function vMag(v) {
+                return Math.sqrt(v[0] * v[0] + v[1] * v[1]);
+            };
+            var vRatio = function vRatio(u, v) {
+                return (u[0] * v[0] + u[1] * v[1]) / (vMag(u) * vMag(v));
+            };
+            var vAngle = function vAngle(u, v) {
+                return (u[0] * v[1] < u[1] * v[0] ? -1 : 1) * Math.acos(vRatio(u, v));
+            };
+            var theta = vAngle([1, 0], [(xp - cxp) / rx, (yp - cyp) / ry]);
+            var u = [(xp - cxp) / rx, (yp - cyp) / ry];
+            var v = [(-1 * xp - cxp) / rx, (-1 * yp - cyp) / ry];
+            var dTheta = vAngle(u, v);
+
+            if (vRatio(u, v) <= -1) {
+                dTheta = Math.PI;
+            }
+            if (vRatio(u, v) >= 1) {
+                dTheta = 0;
+            }
+            if (fs === 0 && dTheta > 0) {
+                dTheta = dTheta - 2 * Math.PI;
+            }
+            if (fs === 1 && dTheta < 0) {
+                dTheta = dTheta + 2 * Math.PI;
+            }
+            return [cx, cy, rx, ry, theta, dTheta, psi, fs];
+        }
+
+        /**
+         * 创建路径
+         * @param {Context2D} ctx Canvas 2D上下文
+         * @param {Object} style 样式
+         */
+
+    }, {
+        key: 'buildPath',
+        value: function buildPath(ctx, style) {
+            var path = style.path;
+            var pathArray = this._parsePathData(path);
+
+            for (var i = 0; i < pathArray.length; i++) {
+                var c = pathArray[i].command;
+                var p = pathArray[i].points;
+                // 平移变换
+                for (var j = 0; j < p.length; j++) {
+                    if (j % 2 === 0) {
+                        p[j] += style.x;
+                    } else {
+                        p[j] += style.y;
+                    }
+                }
+                switch (c) {
+                    case 'L':
+                        ctx.lineTo(p[0], p[1]);
+                        break;
+                    case 'M':
+                        ctx.moveTo(p[0], p[1]);
+                        break;
+                    case 'C':
+                        ctx.bezierCurveTo(p[0], p[1], p[2], p[3], p[4], p[5]);
+                        break;
+                    case 'Q':
+                        ctx.quadraticCurveTo(p[0], p[1], p[2], p[3]);
+                        break;
+                    case 'A':
+                        var cx = p[0];
+                        var cy = p[1];
+                        var rx = p[2];
+                        var ry = p[3];
+                        var theta = p[4];
+                        var dTheta = p[5];
+                        var psi = p[6];
+                        var fs = p[7];
+                        var r = rx > ry ? rx : ry;
+                        var scaleX = rx > ry ? 1 : rx / ry;
+                        var scaleY = rx > ry ? ry / rx : 1;
+
+                        ctx.translate(cx, cy);
+                        ctx.rotate(psi);
+                        ctx.scale(scaleX, scaleY);
+                        ctx.arc(0, 0, r, theta, theta + dTheta, 1 - fs);
+                        ctx.scale(1 / scaleX, 1 / scaleY);
+                        ctx.rotate(-psi);
+                        ctx.translate(-cx, -cy);
+                        break;
+                    case 'z':
+                        ctx.closePath();
+                        break;
+                }
+            }
+
+            return this;
+        }
+
+        /**
+         * 返回矩形区域，用于局部刷新和文字定位。(不准确有问题，TODO)
+         * @param {Object} style
+         */
+
+    }, {
+        key: 'getRect',
+        value: function getRect(style) {
+            var lineWidth;
+            if (style.brushType == 'stroke' || style.brushType == 'fill') {
+                lineWidth = style.lineWidth || 1;
+            } else {
+                lineWidth = 0;
+            }
+            var rect = {
+                x: Math.round(style.x - lineWidth / 2),
+                y: Math.round(style.y - lineWidth / 2)
+            };
+
+            var minX = Number.MAX_VALUE;
+            var maxX = Number.MIN_VALUE;
+
+            var minY = Number.MAX_VALUE;
+            var maxY = Number.MIN_VALUE;
+
+            var pathArray = this._parsePathData(style.path);
+            for (var i = 0; i < pathArray.length; i++) {
+                var p = pathArray[i].points;
+
+                for (var j = 0; j < p.length; j++) {
+                    if (j % 2 === 0) {
+                        if (p[j] < minX) {
+                            minX = p[j];
+                        }
+                        if (p[j] > maxX) {
+                            maxX = p[j];
+                        }
+                    } else {
+                        if (p[j] < minY) {
+                            minY = p[j];
+                        }
+                        if (p[j] > maxY) {
+                            maxY = p[j];
+                        }
+                    }
+                }
+            }
+            if (minX === Number.MAX_VALUE || maxX === Number.MIN_VALUE || minY === Number.MAX_VALUE || maxY === Number.MIN_VALUE) {
+                rect.width = 0;
+                rect.height = 0;
+            } else {
+                rect.width = maxX - minX + lineWidth;
+                rect.height = maxY - minY + lineWidth;
+            }
+
+            return rect;
+        }
+    }]);
+
+    return Path;
+}(_Shape3.default);
+
+exports.default = Path;
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _Shape2 = __webpack_require__(0);
+
+var _Shape3 = _interopRequireDefault(_Shape2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Line = function (_Shape) {
+    _inherits(Line, _Shape);
+
+    function Line() {
+        _classCallCheck(this, Line);
+
+        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Line).call(this));
+
+        _this.type = 'line';
+        _this.brushTypeOnly = 'stroke'; // 线条只能描边
+        _this.textPosition = 'end';
+        return _this;
+    }
+
+    /**
+     * 创建直线路径
+     * @param {Context2D} ctx Canvas 2D上下文
+     * @param {Object} style 样式
+     */
+
+
+    _createClass(Line, [{
+        key: 'buildPath',
+        value: function buildPath(ctx, style) {
+            if (!style.lineType || style.lineType == 'solid') {
+                //默认为实线
+                ctx.moveTo(style.xStart, style.yStart);
+                ctx.lineTo(style.xEnd, style.yEnd);
+            } else if (style.lineType == 'dashed' || style.lineType == 'dotted') {
+                //画虚线的方法  by loutongbing@baidu.com
+                var lineWidth = style.lineWidth || 1;
+                var dashPattern = [lineWidth * (style.lineType == 'dashed' ? 6 : 1), lineWidth * 4];
+                var fromX = style.xStart;
+                var toX = style.xEnd;
+                var fromY = style.yStart;
+                var toY = style.yEnd;
+                var dx = toX - fromX;
+                var dy = toY - fromY;
+                var angle = Math.atan2(dy, dx);
+                var x = fromX;
+                var y = fromY;
+                var idx = 0;
+                var draw = true;
+                var dashLength;
+                var nx;
+                var ny;
+
+                ctx.moveTo(fromX, fromY);
+                while (!((dx < 0 ? x <= toX : x >= toX) && (dy < 0 ? y <= toY : y >= toY))) {
+                    dashLength = dashPattern[idx++ % dashPattern.length];
+                    nx = x + Math.cos(angle) * dashLength;
+                    x = dx < 0 ? Math.max(toX, nx) : Math.min(toX, nx);
+                    ny = y + Math.sin(angle) * dashLength;
+                    y = dy < 0 ? Math.max(toY, ny) : Math.min(toY, ny);
+                    if (draw) {
+                        ctx.lineTo(x, y);
+                    } else {
+                        ctx.moveTo(x, y);
+                    }
+                    draw = !draw;
+                }
+            }
+
+            return this;
+        }
+
+        /**
+         * 返回矩形区域，用于局部刷新和文字定位
+         * @param {Object} style
+         */
+
+    }, {
+        key: 'getRect',
+        value: function getRect(style) {
+            var lineWidth = style.lineWidth || 1;
+
+            return {
+                x: Math.min(style.xStart, style.xEnd) - lineWidth,
+                y: Math.min(style.yStart, style.yEnd) - lineWidth,
+                width: Math.abs(style.xStart - style.xEnd) + lineWidth,
+                height: Math.abs(style.yStart - style.yEnd) + lineWidth
+            };
+        }
+    }]);
+
+    return Line;
+}(_Shape3.default);
+
+exports.default = Line;
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _Shape2 = __webpack_require__(0);
+
+var _Shape3 = _interopRequireDefault(_Shape2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var BezierCurve = function (_Shape) {
+    _inherits(BezierCurve, _Shape);
+
+    function BezierCurve() {
+        _classCallCheck(this, BezierCurve);
+
+        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(BezierCurve).call(this));
+
+        _this.type = 'beziercurve';
+        _this.brushTypeOnly = 'stroke'; // 线条只能描边
+        _this.textPosition = 'end';
+        return _this;
+    }
+
+    /**
+     * 创建曲线路径
+     * @param {Context2D} ctx Canvas 2D上下文
+     * @param {Object} style 样式
+     */
+
+
+    _createClass(BezierCurve, [{
+        key: 'buildPath',
+        value: function buildPath(ctx, style) {
+            ctx.moveTo(style.xStart, style.yStart);
+            if (typeof style.cpX2 != 'undefined' && typeof style.cpY2 != 'undefined') {
+                ctx.bezierCurveTo(style.cpX1, style.cpY1, style.cpX2, style.cpY2, style.xEnd, style.yEnd);
+            } else {
+                ctx.quadraticCurveTo(style.cpX1, style.cpY1, style.xEnd, style.yEnd);
+            }
+            return this;
+        }
+
+        /**
+         * 返回矩形区域，用于局部刷新和文字定位
+         * @param {Object} style
+         */
+
+    }, {
+        key: 'getRect',
+        value: function getRect(style) {
+            var _minX = Math.min(style.xStart, style.xEnd, style.cpX1);
+            var _minY = Math.min(style.yStart, style.yEnd, style.cpY1);
+            var _maxX = Math.max(style.xStart, style.xEnd, style.cpX1);
+            var _maxY = Math.max(style.yStart, style.yEnd, style.cpY1);
+            var _x2 = style.cpX2;
+            var _y2 = style.cpY2;
+
+            if (typeof _x2 != 'undefined' && typeof _y2 != 'undefined') {
+                _minX = Math.min(_minX, _x2);
+                _minY = Math.min(_minY, _y2);
+                _maxX = Math.max(_maxX, _x2);
+                _maxY = Math.max(_maxY, _y2);
+            }
+
+            var lineWidth = style.lineWidth || 1;
+
+            return {
+                x: _minX - lineWidth,
+                y: _minY - lineWidth,
+                width: _maxX - _minX + lineWidth,
+                height: _maxY - _minY + lineWidth
+            };
+        }
+    }]);
+
+    return BezierCurve;
+}(_Shape3.default);
+
+exports.default = BezierCurve;
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _Shape2 = __webpack_require__(0);
+
+var _Shape3 = _interopRequireDefault(_Shape2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var BrokenLine = function (_Shape) {
+    _inherits(BrokenLine, _Shape);
+
+    function BrokenLine() {
+        _classCallCheck(this, BrokenLine);
+
+        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(BrokenLine).call(this));
+
+        _this.type = 'brokenline';
+        _this.brushTypeOnly = 'stroke'; // 线条只能描边
+        _this.textPosition = 'end';
+        return _this;
+    }
+
+    /**
+     * 创建折线路径
+     * @param {Context2D} ctx Canvas 2D上下文
+     * @param {Object} style 样式
+     */
+
+
+    _createClass(BrokenLine, [{
+        key: 'buildPath',
+        value: function buildPath(ctx, style) {
+            var pointList = style.pointList;
+            if (pointList.length < 2) {
+                // 少于2个点就不画了~
+                return;
+            }
+            if (!style.lineType || style.lineType == 'solid') {
+                //默认为实线
+                ctx.moveTo(pointList[0][0], pointList[0][1]);
+                for (var i = 1, l = pointList.length; i < l; i++) {
+                    ctx.lineTo(pointList[i][0], pointList[i][1]);
+                }
+            } else if (style.lineType == 'dashed' || style.lineType == 'dotted') {
+                //画虚线的方法  by loutongbing@baidu.com
+                var lineWidth = style.lineWidth || 1;
+                var dashPattern = [lineWidth * (style.lineType == 'dashed' ? 6 : 1), lineWidth * 4];
+                ctx.moveTo(pointList[0][0], pointList[0][1]);
+                for (var i = 1, l = pointList.length; i < l; i++) {
+                    var fromX = pointList[i - 1][0];
+                    var toX = pointList[i][0];
+                    var fromY = pointList[i - 1][1];
+                    var toY = pointList[i][1];
+                    var dx = toX - fromX;
+                    var dy = toY - fromY;
+                    var angle = Math.atan2(dy, dx);
+                    var x = fromX;
+                    var y = fromY;
+                    var idx = 0;
+                    var draw = true;
+                    var dashLength;
+                    var nx;
+                    var ny;
+
+                    while (!((dx < 0 ? x <= toX : x >= toX) && (dy < 0 ? y <= toY : y >= toY))) {
+                        dashLength = dashPattern[idx++ % dashPattern.length];
+                        nx = x + Math.cos(angle) * dashLength;
+                        x = dx < 0 ? Math.max(toX, nx) : Math.min(toX, nx);
+                        ny = y + Math.sin(angle) * dashLength;
+                        y = dy < 0 ? Math.max(toY, ny) : Math.min(toY, ny);
+                        if (draw) {
+                            ctx.lineTo(x, y);
+                        } else {
+                            ctx.moveTo(x, y);
+                        }
+                        draw = !draw;
+                    }
+                }
+            }
+            return this;
+        }
+
+        /**
+         * 返回矩形区域，用于局部刷新和文字定位
+         * @param {Object} style
+         */
+
+    }, {
+        key: 'getRect',
+        value: function getRect(style) {
+            var minX = Number.MAX_VALUE;
+            var maxX = Number.MIN_VALUE;
+            var minY = Number.MAX_VALUE;
+            var maxY = Number.MIN_VALUE;
+
+            var pointList = style.pointList;
+            for (var i = 0, l = pointList.length; i < l; i++) {
+                if (pointList[i][0] < minX) {
+                    minX = pointList[i][0];
+                }
+                if (pointList[i][0] > maxX) {
+                    maxX = pointList[i][0];
+                }
+                if (pointList[i][1] < minY) {
+                    minY = pointList[i][1];
+                }
+                if (pointList[i][1] > maxY) {
+                    maxY = pointList[i][1];
+                }
+            }
+
+            var lineWidth;
+            if (style.brushType == 'stroke' || style.brushType == 'fill') {
+                lineWidth = style.lineWidth || 1;
+            } else {
+                lineWidth = 0;
+            }
+            return {
+                x: Math.round(minX - lineWidth / 2),
+                y: Math.round(minY - lineWidth / 2),
+                width: maxX - minX + lineWidth,
+                height: maxY - minY + lineWidth
+            };
+        }
+    }]);
+
+    return BrokenLine;
+}(_Shape3.default);
+
+exports.default = BrokenLine;
 
 /***/ })
 /******/ ]);

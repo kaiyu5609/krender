@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>krender</title>
+	<style media="screen">
+		.wrapper {
+			height: 200px;
+			background: #efefef;
+		}
+	</style>
+</head>
+<body>
+
+    <div id="main" class="wrapper"></div>
+
+	<script type="text/javascript" src="../release/krender.js"></script>
+	<script type="text/javascript">
+		console.log(krender);
+
+		var container = document.querySelector('#main');
+
+		var kr = krender.init(container);
+
+		console.log(kr);
+
+		var line = {
+			shape: 'line',
+			clickable: true,
+			style: {
+				xStart: 100,
+                yStart: 100,
+                xEnd: 400,
+                yEnd: 100,
+                strokeColor: '#61a1f8',
+                lineWidth: '2'
+			},
+			highlightStyle: {
+				strokeColor: '#8f65de',
+				lineWidth: '2',
+				brushType: 'stroke'
+			},
+			onmouseover: function(params) {
+				console.log(params);
+			}
+		};
+		
+		kr.addShape(line);
+        kr.render();
+
+	</script>
+</body>
+</html>
